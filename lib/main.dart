@@ -1,33 +1,34 @@
 import 'package:flutter/cupertino.dart';
-import 'screens/welcome.dart';
+import 'services/auth/auth_service_abstract.dart';
+import 'services/auth/auth_service.dart';
+import 'package:provider/provider.dart';
+import 'router.dart';
 
-class MyAwesomeApp extends StatelessWidget {
-  const MyAwesomeApp({super.key});
+class AppEntryPoint extends StatelessWidget {
+  const AppEntryPoint({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const CupertinoApp(
-      title: "My Awesome App",
-      theme: CupertinoThemeData(),
-      home: TeriyaWelcomeScreen(),
+    return Provider<AuthServiceAbstract>(
+        create: (_) => AuthService(), child: TeriyaApp());
+  }
+}
+
+class TeriyaApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final authService = Provider.of<AuthServiceAbstract>(context);
+    final appRouter = AppRouter(authService: authService);
+
+    return CupertinoApp.router(
+      routerConfig: appRouter.router,
+      title: "Teriya",
+      theme: const CupertinoThemeData(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const CupertinoPageScaffold(
-      child: Center(
-        child: Text('Hello world !'),
-      ),
-    );
-  }
-}
-
 void main() {
-  runApp(const MyAwesomeApp());
+  runApp(const AppEntryPoint());
 }

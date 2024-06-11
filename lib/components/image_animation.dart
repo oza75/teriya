@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 
 class ImageFadeAnimation extends StatefulWidget {
@@ -19,19 +20,33 @@ class ImageFadeAnimation extends StatefulWidget {
 
 class ImageFadeAnimationState extends State<ImageFadeAnimation> {
   int _currentIndex = 0;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    // Schedule the image change with initial delay
-    Future.delayed(widget.changeInterval, _changeImage);
+    _scheduleImageChange();
+  }
+
+  void _scheduleImageChange() {
+    _timer = Timer(widget.changeInterval, _changeImage);
   }
 
   void _changeImage() {
+    if (!mounted) return; // Check if the widget is still in the tree
+
     setState(() {
       _currentIndex = (_currentIndex + 1) % widget.imageList.length;
     });
-    Future.delayed(widget.changeInterval, _changeImage); // Keep looping
+
+    // Schedule the next image change
+    _scheduleImageChange();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
   }
 
   @override
