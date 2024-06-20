@@ -1,4 +1,5 @@
 import 'package:Teriya/models.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'auth_service_abstract.dart';
 
@@ -21,7 +22,13 @@ class AuthService implements AuthServiceAbstract {
 
   @override
   Future<TeriyaUser> signInWithGoogle() {
-    // TODO: implement signInWithGoogle
-    throw UnimplementedError();
+    final _googleSignIn = GoogleSignIn();
+
+    Future<TeriyaUser> account = _googleSignIn.signIn().then((account) {
+      print(account);
+      return TeriyaUser(id: 10);
+    });
+
+    return account;
   }
 }

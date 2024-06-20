@@ -1,6 +1,9 @@
-import 'package:Teriya/components/image_animation.dart';
+import '../components/image_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../services/auth/auth_service_abstract.dart';
 
 class TeriyaWelcomeScreen extends StatefulWidget {
   const TeriyaWelcomeScreen({super.key});
@@ -12,6 +15,8 @@ class TeriyaWelcomeScreen extends StatefulWidget {
 class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthServiceAbstract>(context);
+
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.systemBackground,
       child: Stack(
@@ -19,10 +24,9 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
         children: <Widget>[
           const Positioned.fill(
             child: ImageFadeAnimation(imageList: [
-              'assets/images/welcome_screen/pexels-smiling-friends.jpg',
-              'assets/images/welcome_screen/pexels-smiling_facing_cam.jpg',
-              'assets/images/welcome_screen/pexels-friends-hand-clapping.jpg',
-              'assets/images/welcome_screen/pexels-friends-hand-upside.jpg',
+              'assets/images/welcome_screen/pexels-mkvisuals-2781195.jpg',
+              'assets/images/welcome_screen/pexels-polina-zimmerman-3747462.jpg',
+              'assets/images/welcome_screen/pexels-tatianasyrikova-3975590.jpg',
             ]),
           ),
           Column(
@@ -40,7 +44,7 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'A new way to meet friends',
+                'A new way to learn',
                 style: TextStyle(
                   fontSize: 18,
                   color: CupertinoColors.white,
@@ -66,7 +70,7 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
                   ],
                 ),
                 onPressed: () {
-                  // Placeholder for future OAuth logic
+                  authService.signInWithGoogle();
                 },
               ),
               const SizedBox(height: 20),
