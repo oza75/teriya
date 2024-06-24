@@ -1,9 +1,13 @@
+import 'dart:io';
+import 'dart:ui';
+
+import 'package:Teriya/services/auth_service.dart';
+import 'package:go_router/go_router.dart';
+
 import '../components/image_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../services/auth/auth_service_abstract.dart';
 
 class TeriyaWelcomeScreen extends StatefulWidget {
   const TeriyaWelcomeScreen({super.key});
@@ -15,8 +19,7 @@ class TeriyaWelcomeScreen extends StatefulWidget {
 class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthServiceAbstract>(context);
-
+    final authService = Provider.of<AuthService>(context);
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.systemBackground,
       child: Stack(
@@ -70,30 +73,42 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
                   ],
                 ),
                 onPressed: () {
-                  authService.signInWithGoogle();
+                  authService.signInWithGoogle().then((user) {
+                    context.goNamed("home");
+                  });
                 },
               ),
               const SizedBox(height: 20),
-              CupertinoButton(
-                color: CupertinoColors.black,
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(Icons.apple, size: 24, color: CupertinoColors.white),
-                    SizedBox(width: 12),
-                    Text(
-                      'Sign in with Apple',
-                      style: TextStyle(
-                        color: CupertinoColors.white,
-                        fontSize: 17,
+              if (Platform.isAndroid)
+                const Text("Register or Login with your Google Account",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: CupertinoColors.extraLightBackgroundGray,
+                    )),
+              if (!Platform.isAndroid)
+                CupertinoButton(
+                  color: CupertinoColors.black,
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(Icons.apple, size: 24, color: CupertinoColors.white),
+                      SizedBox(width: 12),
+                      Text(
+                        'Sign in with Apple',
+                        style: TextStyle(
+                          color: CupertinoColors.white,
+                          fontSize: 17,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  onPressed: () {
+                    authService.signInWithApple().then((user) {
+                      context.goNamed("home");
+                    });
+                  },
                 ),
-                onPressed: () {
-                  // Placeholder for future OAuth logic
-                },
-              ),
               const Spacer(flex: 1),
             ],
           ),

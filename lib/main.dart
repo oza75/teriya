@@ -1,6 +1,5 @@
+import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
-import 'services/auth/auth_service_abstract.dart';
-import 'services/auth/auth_service.dart';
 import 'package:provider/provider.dart';
 import 'router.dart';
 
@@ -9,7 +8,7 @@ class AppEntryPoint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Provider<AuthServiceAbstract>(
+    return ChangeNotifierProvider<AuthService>(
         create: (_) => AuthService(), child: TeriyaApp());
   }
 }
@@ -17,9 +16,8 @@ class AppEntryPoint extends StatelessWidget {
 class TeriyaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthServiceAbstract>(context);
-    final appRouter = AppRouter(authService: authService);
-
+    final appRouter = AppRouter();
+    print("building teriya app!");
     return CupertinoApp.router(
       routerConfig: appRouter.router,
       title: "Teriya",

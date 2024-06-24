@@ -1,6 +1,8 @@
+import 'package:provider/provider.dart';
+
+import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 
-import 'services/auth/auth_service_abstract.dart';
 import 'pages/loading_splash.dart';
 import 'pages/home.dart';
 import 'pages/welcome.dart';
@@ -34,9 +36,7 @@ class FadeTransitionRoute extends GoRoute {
 }
 
 class AppRouter {
-  final AuthServiceAbstract authService;
-
-  AppRouter({required this.authService});
+  AppRouter();
 
   late final GoRouter router = GoRouter(
     routes: [
@@ -48,6 +48,7 @@ class AppRouter {
     ],
     initialLocation: '/splash',
     redirect: (context, state) {
+      final authService = Provider.of<AuthService>(context, listen: false);
       // Global redirect logic to handle authentication
       final loggedIn = authService.user != null;
       final goingToWelcome = state.fullPath == '/welcome';

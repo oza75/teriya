@@ -1,5 +1,4 @@
-import 'package:Teriya/models.dart';
-import 'package:Teriya/services/auth/auth_service_abstract.dart';
+import 'package:Teriya/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -22,12 +21,16 @@ class LoadingSplashScreenState extends State<LoadingSplashScreen>
     animateLogo();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AuthServiceAbstract>(context, listen: false)
-          .getUser()
-          .then((user) {
-        if (mounted) {
-          context.goNamed(user != null ? 'home' : 'welcome');
-        }
+      Future.delayed(const Duration(seconds: 1), () {
+        Provider.of<AuthService>(context, listen: false).getUser().then((user) {
+          if (mounted) {
+            context.goNamed(user != null ? 'home' : 'welcome');
+          }
+        }).catchError((res) {
+          if (mounted) {
+            context.goNamed('welcome');
+          }
+        });
       });
     });
   }
