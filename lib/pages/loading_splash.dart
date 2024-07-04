@@ -1,5 +1,6 @@
 import 'package:Teriya/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +25,7 @@ class LoadingSplashScreenState extends State<LoadingSplashScreen>
       Future.delayed(const Duration(seconds: 1), () {
         Provider.of<AuthService>(context, listen: false).getUser().then((user) {
           if (mounted) {
-            context.goNamed(user != null ? 'home' : 'welcome');
+            context.goNamed(user != null ? 'onboarding' : 'welcome');
           }
         }).catchError((res) {
           if (mounted) {
@@ -67,6 +68,9 @@ class LoadingSplashScreenState extends State<LoadingSplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    Color textColor = CupertinoTheme.brightnessOf(context) == Brightness.light
+        ? const Color.fromRGBO(30, 58, 138, 1)
+        : CupertinoColors.white;
     return CupertinoPageScaffold(
         child: Center(
       child: FadeTransition(
@@ -80,12 +84,12 @@ class LoadingSplashScreenState extends State<LoadingSplashScreen>
               height: 100,
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Teriya',
               style: TextStyle(
                 fontSize: 32,
                 fontFamily: 'Poppins',
-                color: Color.fromRGBO(30, 58, 138, 1),
+                color: textColor,
                 fontWeight: FontWeight.w900,
               ),
             ),

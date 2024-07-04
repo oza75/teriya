@@ -74,7 +74,7 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
                 ),
                 onPressed: () {
                   authService.signInWithGoogle().then((user) {
-                    context.goNamed("home");
+                    context.goNamed("onboarding");
                   });
                 },
               ),
@@ -105,7 +105,7 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
                   ),
                   onPressed: () {
                     authService.signInWithApple().then((user) {
-                      context.goNamed("home");
+                      context.goNamed("onboarding");
                     });
                   },
                 ),

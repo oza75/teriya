@@ -1,3 +1,4 @@
+import 'package:Teriya/pages/onboarding.dart';
 import 'package:provider/provider.dart';
 
 import 'services/auth_service.dart';
@@ -44,7 +45,11 @@ class AppRouter {
           path: '/splash', name: 'splash', page: const LoadingSplashScreen()),
       FadeTransitionRoute(
           path: '/welcome', name: 'welcome', page: const TeriyaWelcomeScreen()),
-      FadeTransitionRoute(path: '/home', name: 'home', page: const HomePage())
+      FadeTransitionRoute(path: '/home', name: 'home', page: const HomePage()),
+      FadeTransitionRoute(
+          path: '/onboarding',
+          name: 'onboarding',
+          page: const MeetAllyOnboarding())
     ],
     initialLocation: '/splash',
     redirect: (context, state) {
@@ -62,7 +67,8 @@ class AppRouter {
       // Redirect to home if logged in and trying to go to welcome
       if (loggedIn && goingToWelcome) {
         print("redirecting to home");
-        return '/home';
+        // return '/home';
+        return '/onboarding';
       }
 
       return state.fullPath;
