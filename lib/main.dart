@@ -2,14 +2,24 @@ import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'router.dart';
+import 'services/conversation_service.dart';
 
 class AppEntryPoint extends StatelessWidget {
   const AppEntryPoint({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AuthService>(
-        create: (_) => AuthService(), child: TeriyaApp());
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthService>(
+          create: (_) => AuthService(),
+        ),
+        ChangeNotifierProvider<ConversationService>(
+          create: (_) => ConversationService(),
+        ),
+      ],
+      child: TeriyaApp(),
+    );
   }
 }
 
