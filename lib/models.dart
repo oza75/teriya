@@ -1,6 +1,6 @@
-enum MessageType { text, image, video, link }
+enum ConversationMessageType { text, image, video, link }
 
-enum SenderType { user, ally }
+enum ConversationMessageSenderType { user, ally }
 
 enum ConversationType { onboarding }
 
@@ -31,13 +31,13 @@ class TeriyaUser {
 }
 
 class ConversationMessage {
-  final String id;
+  final int id;
   final String content;
-  final MessageType messageType;
-  final SenderType senderType;
+  final ConversationMessageType messageType;
+  final ConversationMessageSenderType senderType;
   final DateTime timestamp;
   final List<String>? quickReplies; // Optional: For quick reply options
-  final Duration? delay;
+  Duration? delay;
 
   ConversationMessage({
     required this.id,
@@ -53,9 +53,14 @@ class ConversationMessage {
     return ConversationMessage(
       id: json['id'],
       content: json['content'],
-      messageType: MessageType.values.byName(json['message_type']),
-      senderType: SenderType.values.byName(json['sender_type']),
-      timestamp: json['created_at'],
+      messageType: ConversationMessageType.values.byName(json['content_type']),
+      senderType: json['user_id'] != null
+          ? ConversationMessageSenderType.user
+          : ConversationMessageSenderType.ally,
+      timestamp: DateTime.parse(json['created_at']),
+      quickReplies: json['quick_replies'] != null
+          ? List<String>.from(json['quick_replies'])
+          : null,
       delay: json.containsKey("delay")
           ? Duration(milliseconds: json['delay'])
           : const Duration(milliseconds: 0),
@@ -64,20 +69,22 @@ class ConversationMessage {
 }
 
 class Conversation {
-  final String conversationId;
+  final String id;
   final List<ConversationMessage> messages;
   final ConversationType conversationType;
 
   Conversation({
-    required this.conversationId,
+    required this.id,
     required this.messages,
     required this.conversationType,
   });
 
   factory Conversation.fromJson(Map<String, dynamic> json) {
+    List<dynamic> messages = json['messages'];
     return Conversation(
-      conversationId: json['id'],
-      messages: json['messages'],
+      id: json['id'],
+      messages:
+          messages.map((elem) => ConversationMessage.fromJson(elem)).toList(),
       conversationType: ConversationType.values.byName(json['type']),
     );
   }

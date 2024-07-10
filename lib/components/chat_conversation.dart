@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:Teriya/components/delayed_visibility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -29,7 +32,7 @@ class ChatConversation extends StatefulWidget {
 class _ChatConversationState extends State<ChatConversation> {
   late Future<void> _fetchConversationFuture;
   late ScrollController _internalScrollController;
-  bool _showTyping = true;
+  bool _showTyping = false;
 
   @override
   void initState() {
@@ -37,8 +40,12 @@ class _ChatConversationState extends State<ChatConversation> {
     _internalScrollController = widget.scrollController ?? ScrollController();
     _fetchConversationFuture =
         Provider.of<ConversationService>(context, listen: false)
-            .fetchConversation(widget.conversationId)
-            .then((res) {
+            .loadConversation(widget.conversationId)
+            .then((conversation) {
+      if (conversation.messages.isEmpty) {
+        _sendMessage();
+      }
+
       if (widget.onConversationLoaded != null) {
         widget.onConversationLoaded!();
       }
@@ -52,6 +59,16 @@ class _ChatConversationState extends State<ChatConversation> {
       _internalScrollController.dispose();
     }
     super.dispose();
+  }
+
+  void _sendMessage([String? text]) {
+    setState(() => _showTyping = true);
+
+    Provider.of<ConversationService>(context, listen: false)
+        .sendMessage(text)
+        .then((res) {
+      setState(() => _showTyping = false);
+    });
   }
 
   @override
@@ -72,38 +89,50 @@ class _ChatConversationState extends State<ChatConversation> {
         } else {
           return Consumer<ConversationService>(
             builder: (context, service, child) {
+              var mListReversed =
+                  service.currentConversation!.messages.reversed.toList();
               int total = service.currentConversation!.messages.length;
               total = widget.topChild != null ? total + 1 : total;
               total = _showTyping ? total + 1 : total;
               return Column(
                 children: [
                   Expanded(
-                    child: ListView.builder(
-                      controller: _internalScrollController,
-                      padding: const EdgeInsets.all(10),
-                      itemCount: total,
-                      itemBuilder: (context, index) {
-                        if (index == 0 && widget.topChild != null) {
-                          return widget.topChild!;
-                        }
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: ListView.builder(
+                        controller: _internalScrollController,
+                        padding: const EdgeInsets.all(10),
+                        itemCount: total,
+                        reverse: true,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          if (index == total - 1 && widget.topChild != null) {
+                            return widget.topChild!;
+                          }
 
-                        if (index == (total - 1) && _showTyping) {
-                          return _buildTypingIndicator();
-                        }
+                          if (index == 0 && _showTyping) {
+                            return _buildTypingIndicator();
+                          }
 
-                        int mIndex =
-                            widget.topChild != null ? index - 1 : index;
-                        return ChatConversationMessage(
-                          message:
-                              service.currentConversation!.messages[mIndex],
-                        );
-                      },
+                          int mIndex = _showTyping ? index - 1 : index;
+                          var message = mListReversed[mIndex];
+                          return ChatConversationMessage(
+                            key: ValueKey("conversation-message-${message.id}"),
+                            message: message,
+                          );
+                        },
+                      ),
                     ),
                   ),
                   if (widget.showInput == true)
-                    ChatConversationMessageInput(onSend: (String text) {
-                      print("text: $text");
-                    })
+                    ChatConversationMessageInput(
+                      onSend: _sendMessage,
+                      quickReplies: service.lastMessage?.quickReplies,
+                      quickRepliesDelay: service.lastMessage?.delay != null
+                          ? service.lastMessage!.delay! +
+                              const Duration(milliseconds: 1000)
+                          : null,
+                    )
                 ],
               );
             },
@@ -135,67 +164,54 @@ class ChatConversationMessage extends StatefulWidget {
 }
 
 class _ChatConversationMessageState extends State<ChatConversationMessage> {
-  bool _isVisible = false;
-
   @override
   void initState() {
     super.initState();
-    var delay = widget.message.delay;
-    if (delay == null) {
-      setState(() {
-        _isVisible = true;
-      });
-    } else {
-      Future.delayed(widget.message.delay!, () {
-        if (mounted) {
-          setState(() {
-            _isVisible = true;
-          });
-        }
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isUser = widget.message.senderType == SenderType.user;
-    return !_isVisible
-        ? const SizedBox(
-            height: 0,
-            width: 0,
-          )
-        : Align(
-            alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              margin:
-                  EdgeInsets.fromLTRB(isUser ? 40 : 14, 5, isUser ? 14 : 40, 5),
-              decoration: BoxDecoration(
-                color: isUser
-                    ? const Color.fromRGBO(29, 78, 216, 1)
-                    : const Color.fromRGBO(245, 246, 250, 1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                widget.message.content,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: isUser ? Colors.white : Colors.black,
-                ),
-              ),
+    bool isUser =
+        widget.message.senderType == ConversationMessageSenderType.user;
+    return DelayedVisibility(
+      delay: widget.message.delay,
+      onAfter: () => widget.message.delay = null,
+      child: Align(
+        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          margin: EdgeInsets.fromLTRB(isUser ? 40 : 14, 5, isUser ? 14 : 40, 5),
+          decoration: BoxDecoration(
+            color: isUser
+                ? CupertinoColors.activeBlue
+                : const Color.fromRGBO(245, 246, 250, 1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            widget.message.content,
+            style: TextStyle(
+              fontSize: 16,
+              color: isUser ? Colors.white : Colors.black,
             ),
-          );
+          ),
+        ),
+      ),
+    );
   }
 }
 
 class ChatConversationMessageInput extends StatefulWidget {
   final Function(String) onSend;
   final bool? readOnly;
+  final List<String>? quickReplies;
+  final Duration? quickRepliesDelay;
 
   const ChatConversationMessageInput({
     super.key,
     required this.onSend,
     this.readOnly = false,
+    this.quickReplies,
+    this.quickRepliesDelay,
   });
 
   @override
@@ -221,50 +237,88 @@ class _ChatConversationMessageInputState
       alignment: Alignment.bottomLeft,
       child: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.attach_file),
-                onPressed: () {
-                  // Placeholder for file upload functionality
-                },
+        child: Column(
+          children: [
+            if (widget.quickReplies != null && widget.quickReplies!.isNotEmpty)
+              DelayedVisibility(
+                delay: widget.quickRepliesDelay,
+                child: _buildQuickReplies(),
               ),
-              Expanded(
-                child: CupertinoTextField(
-                  readOnly: true,
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  minLines: 1,
-                  maxLines: 5,
-                  // Allows text field to expand up to 5 lines
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: _handleSubmitted,
-                  placeholder: "Type your message here...",
-                  placeholderStyle: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[400],
-                    fontWeight: FontWeight.w600,
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.attach_file),
+                    onPressed: () {
+                      // Placeholder for file upload functionality
+                    },
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12.0,
-                    vertical: 10.0,
+                  Expanded(
+                    child: CupertinoTextField(
+                      readOnly: widget.readOnly ?? false,
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      minLines: 1,
+                      maxLines: 5,
+                      // Allows text field to expand up to 5 lines
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: _handleSubmitted,
+                      placeholder: "Type your message here...",
+                      placeholderStyle: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[400],
+                        fontWeight: FontWeight.w600,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 10.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        // Background color of the text field
+                        borderRadius: BorderRadius.circular(12.0),
+                        // Rounded corners
+                        border: Border.all(
+                          color: Colors.grey[300] as Color,
+                        ), // Removes default underline on iOS
+                      ),
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    // Background color of the text field
-                    borderRadius: BorderRadius.circular(12.0),
-                    // Rounded corners
-                    border: Border.all(
-                      color: Colors.grey[300] as Color,
-                    ), // Removes default underline on iOS
-                  ),
-                  style: const TextStyle(fontSize: 16, color: Colors.black),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickReplies() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: Wrap(
+          spacing: 8.0,
+          runSpacing: 8.0,
+          alignment: WrapAlignment.end,
+          children: widget.quickReplies!
+              .map((reply) => CupertinoButton(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    color: CupertinoColors.activeBlue,
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    child: Text(reply,
+                        style: const TextStyle(
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        )),
+                    onPressed: () => _handleSubmitted(reply),
+                  ))
+              .toList(),
         ),
       ),
     );
