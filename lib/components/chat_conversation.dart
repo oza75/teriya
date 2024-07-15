@@ -1,9 +1,11 @@
 import 'dart:ui';
 
+import 'package:Teriya/components/chat_actions.dart';
 import 'package:Teriya/components/delayed_visibility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../models.dart';
@@ -61,14 +63,32 @@ class _ChatConversationState extends State<ChatConversation> {
     super.dispose();
   }
 
-  void _sendMessage([String? text]) {
+  void _sendMessage([ConversationMessageReply? reply]) {
+    if (reply?.action != null && chatActionWidgets.containsKey(reply!.action)) {
+      return _showActionWidget(context, reply);
+    }
+
     setState(() => _showTyping = true);
 
     Provider.of<ConversationService>(context, listen: false)
-        .sendMessage(text)
+        .sendMessage(reply?.text)
         .then((res) {
       setState(() => _showTyping = false);
     });
+  }
+
+  void _showActionWidget(
+    BuildContext context,
+    ConversationMessageReply reply,
+  ) {
+    Widget? actionWidget = chatActionWidgets[reply.action];
+    if (actionWidget != null) {
+      CupertinoScaffold.showCupertinoModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.white,
+        builder: (context) => actionWidget,
+      );
+    }
   }
 
   @override
@@ -201,9 +221,9 @@ class _ChatConversationMessageState extends State<ChatConversationMessage> {
 }
 
 class ChatConversationMessageInput extends StatefulWidget {
-  final Function(String) onSend;
+  final Function(ConversationMessageReply) onSend;
   final bool? readOnly;
-  final List<String>? quickReplies;
+  final List<ConversationMessageReply>? quickReplies;
   final Duration? quickRepliesDelay;
 
   const ChatConversationMessageInput({
@@ -224,9 +244,9 @@ class _ChatConversationMessageInputState
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
-  void _handleSubmitted(String text) {
-    if (text.isNotEmpty) {
-      widget.onSend(text);
+  void _handleSubmitted(ConversationMessageReply reply) {
+    if (reply.text.isNotEmpty) {
+      widget.onSend(reply);
       _controller.clear(); // Clear the input field after message is sent
     }
   }
@@ -250,7 +270,10 @@ class _ChatConversationMessageInputState
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.attach_file),
+                    icon: const Icon(
+                      Icons.attach_file,
+                      color: CupertinoColors.activeBlue,
+                    ),
                     onPressed: () {
                       // Placeholder for file upload functionality
                     },
@@ -264,7 +287,9 @@ class _ChatConversationMessageInputState
                       maxLines: 5,
                       // Allows text field to expand up to 5 lines
                       textInputAction: TextInputAction.send,
-                      onSubmitted: _handleSubmitted,
+                      onSubmitted: (String text) => _handleSubmitted(
+                        ConversationMessageReply(text: text),
+                      ),
                       placeholder: "Type your message here...",
                       placeholderStyle: TextStyle(
                         fontSize: 16,
@@ -310,7 +335,7 @@ class _ChatConversationMessageInputState
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     color: CupertinoColors.activeBlue,
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
-                    child: Text(reply,
+                    child: Text(reply.text,
                         style: const TextStyle(
                           color: CupertinoColors.white,
                           fontWeight: FontWeight.w600,

@@ -1,3 +1,5 @@
+import 'package:Teriya/services/course_service.dart';
+
 import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +18,9 @@ class AppEntryPoint extends StatelessWidget {
         ),
         ChangeNotifierProvider<ConversationService>(
           create: (_) => ConversationService(),
+        ),
+        ChangeNotifierProvider<CourseService>(
+          create: (_) => CourseService(),
         ),
       ],
       child: TeriyaApp(),

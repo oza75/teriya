@@ -30,13 +30,25 @@ class TeriyaUser {
   }
 }
 
+class ConversationMessageReply {
+  final String text;
+  final String? action;
+
+  ConversationMessageReply({required this.text, this.action});
+
+  factory ConversationMessageReply.fromJson(Map<String, dynamic> json) {
+    return ConversationMessageReply(text: json['text'], action: json['action']);
+  }
+}
+
 class ConversationMessage {
   final int id;
   final String content;
   final ConversationMessageType messageType;
   final ConversationMessageSenderType senderType;
   final DateTime timestamp;
-  final List<String>? quickReplies; // Optional: For quick reply options
+  final List<ConversationMessageReply>?
+      quickReplies; // Optional: For quick reply options
   Duration? delay;
 
   ConversationMessage({
@@ -50,6 +62,7 @@ class ConversationMessage {
   });
 
   factory ConversationMessage.fromJson(Map<String, dynamic> json) {
+    List<dynamic> quickReplies = json['quick_replies'] ?? [];
     return ConversationMessage(
       id: json['id'],
       content: json['content'],
@@ -58,9 +71,9 @@ class ConversationMessage {
           ? ConversationMessageSenderType.user
           : ConversationMessageSenderType.ally,
       timestamp: DateTime.parse(json['created_at']),
-      quickReplies: json['quick_replies'] != null
-          ? List<String>.from(json['quick_replies'])
-          : null,
+      quickReplies: quickReplies
+          .map((elem) => ConversationMessageReply.fromJson(elem))
+          .toList(),
       delay: json.containsKey("delay")
           ? Duration(milliseconds: json['delay'])
           : const Duration(milliseconds: 0),
@@ -81,6 +94,7 @@ class Conversation {
 
   factory Conversation.fromJson(Map<String, dynamic> json) {
     List<dynamic> messages = json['messages'];
+
     return Conversation(
       id: json['id'],
       messages:
@@ -93,7 +107,23 @@ class Conversation {
     messages.add(message);
   }
 
-  void removeMessage(String messageId) {
+  void removeMessage(int messageId) {
     messages.removeWhere((msg) => msg.id == messageId);
+  }
+}
+
+class Course {
+  final int id;
+  final String name;
+  final String major;
+
+  Course({required this.id, required this.name, required this.major});
+
+  factory Course.fromJson(Map<String, dynamic> json) {
+    return Course(
+      id: json['id'],
+      name: json['name'],
+      major: json['major'],
+    );
   }
 }

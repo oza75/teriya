@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../components/chat_conversation.dart';
@@ -66,11 +65,13 @@ class _MeetAllyOnboardingState extends State<MeetAllyOnboarding> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          _buildBackgroundImage(),
-          _buildDraggableScrollableSheet(context),
-        ],
+      body: CupertinoScaffold(
+        body: Stack(
+          children: [
+            _buildBackgroundImage(),
+            _buildDraggableScrollableSheet(context),
+          ],
+        ),
       ),
     );
   }
