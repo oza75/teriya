@@ -4,6 +4,7 @@ import 'package:Teriya/components/chat_actions.dart';
 import 'package:Teriya/components/delayed_visibility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -64,7 +65,12 @@ class _ChatConversationState extends State<ChatConversation> {
   }
 
   void _sendMessage([ConversationMessageReply? reply]) {
-    if (reply?.action != null && chatActionWidgets.containsKey(reply!.action)) {
+    var shouldShowWidget =
+        reply?.action != null && chatActionWidgets.containsKey(reply!.action);
+    var isRedirectAction =
+        reply?.action != null && reply!.action!.contains('REDIRECT_');
+
+    if (shouldShowWidget && !isRedirectAction) {
       return _showActionWidget(context, reply);
     }
 
@@ -74,15 +80,38 @@ class _ChatConversationState extends State<ChatConversation> {
         .sendMessage(reply?.text)
         .then((res) {
       setState(() => _showTyping = false);
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (isRedirectAction) {
+          _redirectAction(context, reply);
+        }
+      });
     });
+  }
+
+  void _redirectAction(BuildContext context, ConversationMessageReply reply) {
+    String? routeName = chatActionRedirects[reply.action];
+    if (routeName != null) {
+      context.goNamed(routeName);
+    }
   }
 
   void _showActionWidget(
     BuildContext context,
     ConversationMessageReply reply,
   ) {
-    Widget? actionWidget = chatActionWidgets[reply.action];
-    if (actionWidget != null) {
+    ChatActionWidgetConstructor? widgetConstructor =
+        chatActionWidgets[reply.action];
+    if (widgetConstructor != null) {
+      Widget actionWidget = widgetConstructor(
+        onFinish: (course) {
+          _sendMessage(ConversationMessageReply(text: reply.text));
+          Navigator.of(context).pop();
+        },
+        onClose: () {
+          Navigator.of(context).pop();
+        },
+      );
       CupertinoScaffold.showCupertinoModalBottomSheet(
         context: context,
         backgroundColor: Colors.white,
@@ -226,13 +255,14 @@ class ChatConversationMessageInput extends StatefulWidget {
   final List<ConversationMessageReply>? quickReplies;
   final Duration? quickRepliesDelay;
 
-  const ChatConversationMessageInput({
+  ChatConversationMessageInput({
     super.key,
     required this.onSend,
-    this.readOnly = false,
     this.quickReplies,
     this.quickRepliesDelay,
-  });
+    bool? readOnly,
+  }) : readOnly = readOnly ??
+            (quickReplies?.any((item) => item.action != null) ?? false);
 
   @override
   State<ChatConversationMessageInput> createState() =>
@@ -290,7 +320,9 @@ class _ChatConversationMessageInputState
                       onSubmitted: (String text) => _handleSubmitted(
                         ConversationMessageReply(text: text),
                       ),
-                      placeholder: "Type your message here...",
+                      placeholder: (widget.readOnly ?? false)
+                          ? "Input disabled"
+                          : "Type your message here...",
                       placeholderStyle: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[400],

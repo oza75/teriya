@@ -10,23 +10,30 @@ class TeriyaUser {
   final String fullName;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final DateTime? onboardingFinishedAt;
 
-  TeriyaUser(
-      {required this.id,
-      required this.email,
-      required this.fullName,
-      required this.createdAt,
-      required this.updatedAt});
+  TeriyaUser({
+    required this.id,
+    required this.email,
+    required this.fullName,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.onboardingFinishedAt,
+  });
 
   String get firstName => fullName.split(' ')[0];
 
   factory TeriyaUser.fromJson(Map<String, dynamic> json) {
     return TeriyaUser(
-        id: json["id"],
-        email: json["email"],
-        fullName: json["full_name"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]));
+      id: json["id"],
+      email: json["email"],
+      fullName: json["full_name"],
+      createdAt: DateTime.parse(json["created_at"]),
+      updatedAt: DateTime.parse(json["updated_at"]),
+      onboardingFinishedAt: json["onboarding_finished_at"] != null
+          ? DateTime.parse(json["onboarding_finished_at"])
+          : null,
+    );
   }
 }
 

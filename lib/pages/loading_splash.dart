@@ -25,7 +25,10 @@ class LoadingSplashScreenState extends State<LoadingSplashScreen>
       Future.delayed(const Duration(seconds: 1), () {
         Provider.of<AuthService>(context, listen: false).getUser().then((user) {
           if (mounted) {
-            context.goNamed(user != null ? 'onboarding' : 'welcome');
+            var route = user != null
+                ? (user.onboardingFinishedAt != null ? 'home' : 'onboarding')
+                : 'welcome';
+            context.goNamed(route);
           }
         }).catchError((res) {
           if (mounted) {

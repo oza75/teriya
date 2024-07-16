@@ -74,7 +74,10 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
                 ),
                 onPressed: () {
                   authService.signInWithGoogle().then((user) {
-                    context.goNamed("onboarding");
+                    var route = user.onboardingFinishedAt != null
+                        ? "home"
+                        : "onboarding";
+                    context.goNamed(route);
                   });
                 },
               ),
@@ -105,7 +108,10 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
                   ),
                   onPressed: () {
                     authService.signInWithApple().then((user) {
-                      context.goNamed("onboarding");
+                      var route = user.onboardingFinishedAt != null
+                          ? "home"
+                          : "onboarding";
+                      context.goNamed(route);
                     });
                   },
                 ),
