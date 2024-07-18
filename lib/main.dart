@@ -1,4 +1,5 @@
 import 'package:Teriya/services/course_service.dart';
+import 'package:flutter/material.dart';
 
 import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,6 +39,11 @@ class TeriyaApp extends StatelessWidget {
       title: "Teriya",
       theme: const CupertinoThemeData(),
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        DefaultMaterialLocalizations.delegate,
+        DefaultCupertinoLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+      ],
     );
   }
 }

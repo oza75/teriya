@@ -27,7 +27,19 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
   String? _selectedMajor;
   bool _submitting = false;
   List<File> documents = [];
-  final List<String> majors = ['Biology', 'Computer Science', 'Economics'];
+  List<String> majors = [];
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<CourseService>(context, listen: false)
+        .fetchMajors()
+        .then((items) {
+      setState(() {
+        majors = items;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,10 +108,12 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
           const SizedBox(height: 10),
           PlatformDependentPicker(
             items: majors,
-            onSelectedItemChanged: (index) {
-              setState(() => _selectedMajor = majors[index]);
+            androidValue: _selectedMajor,
+            onSelectedItemChanged: (value) {
+              var item = value is int ? majors[value] : value;
+              setState(() => _selectedMajor = item);
             },
-            child: Text(
+            iosSelectedItem: Text(
               _selectedMajor ?? "Choose a Major",
               style: TextStyle(
                 color: isDarkTheme ? Colors.grey[300] : Colors.grey[600],
@@ -295,24 +309,9 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
         documents = [];
         _submitting = false;
       });
-      showCupertinoDialog(
-        context: context,
-        builder: (context) => CupertinoAlertDialog(
-          title: const Text('Success'),
-          content: const Text('Course has been added successfully!'),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                if (widget.onAdd != null) {
-                  widget.onAdd!(course);
-                }
-              },
-            ),
-          ],
-        ),
-      );
+      if (widget.onAdd != null) {
+        widget.onAdd!(course);
+      }
     }).catchError((err) {
       setState(() {
         _submitting = false;

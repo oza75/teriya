@@ -4,13 +4,15 @@ import 'dart:io' show Platform;
 
 class PlatformDependentPicker extends StatelessWidget {
   final List<String> items;
-  final Widget child;
+  final Widget iosSelectedItem;
   final double? modalHeight;
+  final dynamic androidValue;
   final Function(dynamic) onSelectedItemChanged;
 
   const PlatformDependentPicker({
     super.key,
-    required this.child,
+    required this.iosSelectedItem,
+    this.androidValue,
     required this.items,
     required this.onSelectedItemChanged,
     this.modalHeight = 250,
@@ -18,8 +20,8 @@ class PlatformDependentPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return Platform.isIOS ? _iosPicker(context) : _androidDropdown();
-    return _iosPicker(context);
+    return Platform.isIOS ? _iosPicker(context) : _androidDropdown(context);
+    // return _iosPicker(context);
   }
 
   Widget _iosPicker(BuildContext context) {
@@ -28,7 +30,7 @@ class PlatformDependentPicker extends StatelessWidget {
       width: double.infinity,
       child: CupertinoButton(
         color: isDarkTheme ? Colors.grey[800] : Colors.grey[200],
-        child: child,
+        child: iosSelectedItem,
         onPressed: () => showCupertinoModalPopup(
           context: context,
           builder: (_) => SizedBox(
@@ -46,21 +48,33 @@ class PlatformDependentPicker extends StatelessWidget {
     );
   }
 
-  Widget _androidDropdown() {
+  Widget _androidDropdown(BuildContext context) {
+    var isDarkTheme = Theme.of(context).brightness == Brightness.dark;
     return Material(
-      child: DropdownButton<String>(
-        value: items.first,
-        onChanged: (String? newValue) {
-          if (newValue != null) {
-            onSelectedItemChanged(newValue);
-          }
-        },
-        items: items.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: isDarkTheme ? Colors.grey[800] : Colors.grey[200],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: DropdownButton<String>(
+          dropdownColor: Colors.grey[200],
+          isExpanded: true,
+          itemHeight: 52,
+          underline: const SizedBox.shrink(),
+          value: androidValue ?? items.first,
+          onChanged: (String? newValue) {
+            if (newValue != null) {
+              onSelectedItemChanged(newValue);
+            }
+          },
+          items: items.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

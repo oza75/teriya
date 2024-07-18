@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 
 class CourseService extends ChangeNotifier {
   final ApiService _apiService = ApiService();
+  List<String> majors = [];
 
   /// Creates a new course with the provided details and documents.
   Future<Course> createCourse(String name, String major, List<File> documents) {
@@ -29,6 +30,14 @@ class CourseService extends ChangeNotifier {
       final course = Course.fromJson(res.data);
       notifyListeners();
       return course;
+    });
+  }
+
+  Future<List<String>> fetchMajors() {
+    return _apiService.http.get('/courses/majors').then((res) {
+      majors = List<String>.from(res.data);
+      notifyListeners();
+      return majors;
     });
   }
 }
