@@ -18,7 +18,7 @@ Map<String, ChatActionWidgetConstructor> chatActionWidgets = {
     Function(dynamic)? onFinish,
     Function? onClose,
   }) =>
-      AddCourseWidget(onAdd: onFinish)
+      CreateCourse(onAdd: onFinish)
 };
 
 Map<String, String> chatActionRedirects = {

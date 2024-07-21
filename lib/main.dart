@@ -1,5 +1,6 @@
 import 'package:Teriya/services/course_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,14 +31,15 @@ class AppEntryPoint extends StatelessWidget {
 }
 
 class TeriyaApp extends StatelessWidget {
+  final appRouter = AppRouter();
+
   @override
   Widget build(BuildContext context) {
-    final appRouter = AppRouter();
     print("building teriya app!");
     return CupertinoApp.router(
       routerConfig: appRouter.router,
       title: "Teriya",
-      theme: const CupertinoThemeData(),
+      theme: const CupertinoThemeData(brightness: Brightness.light),
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
         DefaultMaterialLocalizations.delegate,

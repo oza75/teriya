@@ -1,3 +1,6 @@
+import 'package:Teriya/utils.dart';
+import 'package:flutter/cupertino.dart';
+
 enum ConversationMessageType { text, image, video, link }
 
 enum ConversationMessageSenderType { user, ally }
@@ -123,14 +126,22 @@ class Course {
   final int id;
   final String name;
   final String major;
+  final MajorIconData majorIconData;
 
-  Course({required this.id, required this.name, required this.major});
+  Course({
+    required this.id,
+    required this.name,
+    required this.major,
+    required this.majorIconData,
+  });
 
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
       id: json['id'],
       name: json['name'],
       major: json['major'],
+      majorIconData: majorIconsMap[json['major'].toString().toLowerCase()] ??
+          MajorIconData.raw(),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AdaptiveBottomNavItem {
   final IconData icon;
@@ -40,6 +41,9 @@ class _AdaptiveBottomNavBarState extends State<AdaptiveBottomNavBar> {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         height: 70,
+        onTap: (index) {
+          setState(() => currentPageIndex = index);
+        },
         items: widget.items
             .map((item) => BottomNavigationBarItem(
                   icon: Icon(item.icon),

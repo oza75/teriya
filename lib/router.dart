@@ -1,6 +1,13 @@
+import 'package:Teriya/pages/courses/CourseList.dart';
+import 'package:Teriya/pages/courses/ShowCourse.dart';
 import 'package:Teriya/pages/onboarding.dart';
+import 'package:Teriya/pages/profile.dart';
+import 'package:Teriya/pages/talk_with_ally.dart';
+import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
+import 'components/adaptive_bottom_nav.dart';
 import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -8,6 +15,9 @@ import 'pages/loading_splash.dart';
 import 'pages/home.dart';
 import 'pages/welcome.dart';
 import 'package:go_router/go_router.dart';
+
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 class FadeTransitionRoute extends GoRoute {
   FadeTransitionRoute({
@@ -40,6 +50,7 @@ class AppRouter {
   AppRouter();
 
   late final GoRouter router = GoRouter(
+    navigatorKey: _rootNavigatorKey,
     routes: [
       FadeTransitionRoute(
           path: '/splash', name: 'splash', page: const LoadingSplashScreen()),
@@ -47,9 +58,10 @@ class AppRouter {
           path: '/welcome', name: 'welcome', page: const TeriyaWelcomeScreen()),
       FadeTransitionRoute(path: '/home', name: 'home', page: const HomePage()),
       FadeTransitionRoute(
-          path: '/onboarding',
-          name: 'onboarding',
-          page: const MeetAllyOnboarding())
+        path: '/onboarding',
+        name: 'onboarding',
+        page: const MeetAllyOnboarding(),
+      )
     ],
     initialLocation: '/splash',
     redirect: (context, state) {
@@ -71,7 +83,7 @@ class AppRouter {
         return '/onboarding';
       }
 
-      return state.fullPath;
+      return state.matchedLocation;
     },
   );
 }

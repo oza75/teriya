@@ -7,46 +7,59 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../components/select_picker.dart';
 import '../models.dart';
 import '../services/course_service.dart';
 
-class AddCourseWidget extends StatefulWidget {
-  final Function(Course)? onAdd;
+class CourseForm extends StatefulWidget {
+  final String? initialCourseName;
+  final String? initialMajor;
+  final List<File>? initialDocuments;
+  final Future<Course> Function(String, String, List<File>) onSubmit;
+  final Function() onCancel;
 
-  const AddCourseWidget({this.onAdd, super.key});
+  const CourseForm({
+    super.key,
+    this.initialCourseName,
+    this.initialMajor,
+    this.initialDocuments,
+    required this.onSubmit,
+    required this.onCancel,
+  });
 
   @override
-  State<AddCourseWidget> createState() => _AddCourseWidgetState();
+  State<CourseForm> createState() => _CourseFormState();
 }
 
-class _AddCourseWidgetState extends State<AddCourseWidget> {
-  final TextEditingController _courseNameController = TextEditingController();
+class _CourseFormState extends State<CourseForm> {
+  late TextEditingController _courseNameController;
+  late final Future<List<String>> majorsFuture;
   String? _selectedMajor;
-  bool _submitting = false;
   List<File> documents = [];
-  List<String> majors = [];
+  bool _submitting = false;
 
   @override
   void initState() {
     super.initState();
-    Provider.of<CourseService>(context, listen: false)
-        .fetchMajors()
-        .then((items) {
-      setState(() {
-        majors = items;
-      });
-    });
+    majorsFuture =
+        Provider.of<CourseService>(context, listen: false).fetchMajors();
+    _courseNameController =
+        TextEditingController(text: widget.initialCourseName);
+    _selectedMajor = widget.initialMajor;
+    documents = widget.initialDocuments ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: true,
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Add a New Course'),
+      navigationBar: CupertinoNavigationBar(
+        middle: widget.initialCourseName != null
+            ? Text('Update ${widget.initialCourseName}')
+            : const Text('Add a New Course'),
       ),
       child: SafeArea(
         child: Padding(
@@ -65,16 +78,21 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
   }
 
   Widget _buildCourseNameInput() {
-    final brightness = CupertinoTheme.brightnessOf(context);
+    // notify the ui that when value has changed
+    _courseNameController.addListener(() => setState(() {}));
+    final isDarkTheme = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Course Name",
-            style: TextStyle(fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: isDarkTheme ? Colors.white : Colors.black,
+            ),
           ),
           const SizedBox(height: 10),
           CupertinoTextField(
@@ -83,9 +101,7 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
             padding: const EdgeInsets.all(16),
             clearButtonMode: OverlayVisibilityMode.editing,
             decoration: BoxDecoration(
-              color: brightness == Brightness.dark
-                  ? Colors.grey[800]
-                  : Colors.grey[200],
+              color: isDarkTheme ? Colors.grey[800] : Colors.grey[200],
               borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
           ),
@@ -101,25 +117,46 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Major",
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 10),
-          PlatformDependentPicker(
-            items: majors,
-            androidValue: _selectedMajor,
-            onSelectedItemChanged: (value) {
-              var item = value is int ? majors[value] : value;
-              setState(() => _selectedMajor = item);
-            },
-            iosSelectedItem: Text(
-              _selectedMajor ?? "Choose a Major",
-              style: TextStyle(
-                color: isDarkTheme ? Colors.grey[300] : Colors.grey[600],
-              ),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: isDarkTheme ? Colors.white : Colors.black,
             ),
           ),
+          const SizedBox(height: 10),
+          FutureBuilder(
+              future: majorsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: PlatformCircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else {
+                  var majors = snapshot.data!;
+                  return PlatformDependentPicker(
+                    items: majors,
+                    hint: Text(
+                      "Select a major",
+                      style: TextStyle(
+                        color: isDarkTheme ? Colors.white60 : Colors.black54,
+                      ),
+                    ),
+                    androidValue: _selectedMajor,
+                    onSelectedItemChanged: (value) {
+                      var item = value is int ? majors[value] : value;
+                      setState(() => _selectedMajor = item);
+                    },
+                    iosSelectedItem: Text(
+                      _selectedMajor ?? "Choose a Major",
+                      style: TextStyle(
+                        color:
+                            isDarkTheme ? Colors.grey[300] : Colors.grey[600],
+                      ),
+                    ),
+                  );
+                }
+              })
         ],
       ),
     );
@@ -132,9 +169,10 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Documents (optional)',
+          Text('Documents (optional)',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
+                color: isDarkTheme ? Colors.white : Colors.black,
               )),
           const SizedBox(height: 8),
           Text(
@@ -142,7 +180,7 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color: isDarkTheme ? Colors.grey[200] : Colors.grey[500],
+              color: isDarkTheme ? Colors.white70 : Colors.grey[500],
             ),
           ),
           const SizedBox(height: 15),
@@ -295,28 +333,16 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
 
   void _submitForm() {
     setState(() => _submitting = true);
-    Provider.of<CourseService>(context, listen: false)
-        .createCourse(
+    widget
+        .onSubmit(
       _courseNameController.text,
       _selectedMajor!,
       documents,
     )
         .then((course) {
-      // Optionally clear fields after successful submission
-      _courseNameController.clear();
-      setState(() {
-        _selectedMajor = null;
-        documents = [];
-        _submitting = false;
-      });
-      if (widget.onAdd != null) {
-        widget.onAdd!(course);
-      }
+      setState(() => _submitting = true);
     }).catchError((err) {
-      setState(() {
-        _submitting = false;
-      });
-      throw err;
+      setState(() => _submitting = false);
     });
   }
 
@@ -324,5 +350,84 @@ class _AddCourseWidgetState extends State<AddCourseWidget> {
   void dispose() {
     _courseNameController.dispose();
     super.dispose();
+  }
+}
+
+class CreateCourse extends StatelessWidget {
+  final Function(dynamic)? onAdd;
+
+  const CreateCourse({super.key, required this.onAdd});
+
+  @override
+  Widget build(BuildContext context) {
+    return CourseForm(
+      onSubmit: (name, major, documents) => _createCourse(
+        context,
+        name,
+        major,
+        documents,
+      ),
+      onCancel: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  Future<Course> _createCourse(
+    BuildContext context,
+    String name,
+    String major,
+    List<File> documents,
+  ) {
+    return Provider.of<CourseService>(context, listen: false)
+        .createCourse(name, major, documents)
+        .then((course) {
+      if (onAdd != null) {
+        onAdd!(course);
+      }
+      return course;
+    });
+  }
+}
+
+class UpdateCourse extends StatelessWidget {
+  final Course course;
+  final Function(dynamic)? onUpdate;
+
+  const UpdateCourse({super.key, required this.course, this.onUpdate});
+
+  @override
+  Widget build(BuildContext context) {
+    return CourseForm(
+        initialCourseName: course.name,
+        initialMajor: course.major,
+        initialDocuments: [],
+        onSubmit: (name, major, documents) {
+          return _updateCourse(
+            context,
+            name,
+            major,
+            documents,
+          );
+        },
+        onCancel: () {
+          Navigator.pop(context);
+        });
+  }
+
+  Future<Course> _updateCourse(
+    BuildContext context,
+    String name,
+    String major,
+    List<File> documents,
+  ) {
+    return Provider.of<CourseService>(context, listen: false)
+        .updateCourse(course, name, major, documents)
+        .then((course) {
+      if (onUpdate != null) {
+        onUpdate!(course);
+      }
+      return course;
+    });
   }
 }

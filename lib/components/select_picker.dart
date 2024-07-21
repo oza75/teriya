@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 class PlatformDependentPicker extends StatelessWidget {
   final List<String> items;
   final Widget iosSelectedItem;
+  final Widget? hint;
   final double? modalHeight;
   final dynamic androidValue;
   final Function(dynamic) onSelectedItemChanged;
@@ -16,6 +17,7 @@ class PlatformDependentPicker extends StatelessWidget {
     required this.items,
     required this.onSelectedItemChanged,
     this.modalHeight = 250,
+    this.hint,
   });
 
   @override
@@ -49,8 +51,9 @@ class PlatformDependentPicker extends StatelessWidget {
   }
 
   Widget _androidDropdown(BuildContext context) {
-    var isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+    var isDarkTheme = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     return Material(
+      color: Colors.transparent,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
@@ -58,11 +61,11 @@ class PlatformDependentPicker extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         child: DropdownButton<String>(
-          dropdownColor: Colors.grey[200],
+          dropdownColor: isDarkTheme ? Colors.grey[800] : Colors.grey[200],
           isExpanded: true,
           itemHeight: 52,
+          hint: hint,
           underline: const SizedBox.shrink(),
-          value: androidValue ?? items.first,
           onChanged: (String? newValue) {
             if (newValue != null) {
               onSelectedItemChanged(newValue);
@@ -71,9 +74,15 @@ class PlatformDependentPicker extends StatelessWidget {
           items: items.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
-              child: Text(value),
+              child: Text(
+                value,
+                style: TextStyle(
+                  color: isDarkTheme ? Colors.white60 : Colors.black54,
+                ),
+              ),
             );
           }).toList(),
+          value: androidValue,
         ),
       ),
     );
