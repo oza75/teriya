@@ -122,8 +122,14 @@ class _CourseListState extends State<CourseList> {
                       color:
                           CupertinoTheme.of(context).textTheme.textStyle.color,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  subtitle: Text("${10 + course.id} chapters"),
+                  subtitle: Text(
+                    "${course.major} - ${10 + course.id} chapters",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   onTap: () => Navigator.push(
                     context,
                     FadeTransitionPageRoute(

@@ -127,21 +127,90 @@ class Course {
   final String name;
   final String major;
   final MajorIconData majorIconData;
+  final List<CourseDocument>? documents;
+  final List<CourseChapter>? chapters;
 
   Course({
     required this.id,
     required this.name,
     required this.major,
     required this.majorIconData,
-  });
+    List<CourseDocument>? documents,
+    List<CourseChapter>? chapters,
+  })  : documents = documents ?? [],
+        chapters = chapters ?? [];
 
   factory Course.fromJson(Map<String, dynamic> json) {
+    List<dynamic> documentsJson = json['documents'] ?? [];
+    List<dynamic> chaptersJson = json['chapters'] ?? [];
     return Course(
       id: json['id'],
       name: json['name'],
       major: json['major'],
       majorIconData: majorIconsMap[json['major'].toString().toLowerCase()] ??
           MajorIconData.raw(),
+      documents:
+          documentsJson.map((elem) => CourseDocument.fromJson(elem)).toList(),
+      chapters:
+          chaptersJson.map((elem) => CourseChapter.fromJson(elem)).toList(),
+    );
+  }
+}
+
+class CourseDocument {
+  final int id;
+  final String name;
+  final String path;
+  final String documentType;
+  final int courseId;
+  final bool processed;
+
+  CourseDocument({
+    required this.id,
+    required this.name,
+    required this.path,
+    required this.documentType,
+    required this.processed,
+    required this.courseId,
+  });
+
+  factory CourseDocument.fromJson(Map<String, dynamic> json) {
+    return CourseDocument(
+      id: json['id'],
+      name: json['name'],
+      path: json['path'],
+      courseId: json['course_id'],
+      documentType: json['document_type'],
+      processed: json['processed'],
+    );
+  }
+}
+
+class CourseChapter {
+  final int id;
+  final int courseId;
+  final String name;
+  final String description;
+  final int order;
+  final List<String> documents;
+
+  CourseChapter({
+    required this.id,
+    required this.courseId,
+    required this.name,
+    required this.description,
+    required this.order,
+    required this.documents,
+  });
+
+  factory CourseChapter.fromJson(Map<String, dynamic> json) {
+    return CourseChapter(
+      id: json['id'],
+      courseId: json['course_id'],
+      name: json['name'],
+      description: json['description'],
+      order: json['order'],
+      documents: List<String>.from(json['documents']),
     );
   }
 }

@@ -56,9 +56,7 @@ class CourseService extends ChangeNotifier {
     return _apiService.http
         .put('/courses/${course.id}', data: formData)
         .then((res) {
-      final course = Course.fromJson(res.data);
-      notifyListeners();
-      return course;
+      return Course.fromJson(res.data);
     });
   }
 
@@ -81,5 +79,45 @@ class CourseService extends ChangeNotifier {
     return _apiService.http.get("/courses/$courseId").then((res) {
       return Course.fromJson(res.data);
     });
+  }
+
+  Future<List<CourseDocument>> fetchCourseDocuments(int courseId) {
+    return _apiService.http.get("/courses/$courseId/documents").then((res) {
+      List<dynamic> documents = res.data;
+      return documents.map((elem) => CourseDocument.fromJson(elem)).toList();
+    });
+  }
+
+  Future<void> deleteCourseDocument(int courseId, int documentId) {
+    return _apiService.http
+        .delete("/courses/$courseId/documents/$documentId")
+        .then((res) {});
+  }
+
+  Future<List<CourseDocument>> addCourseDocument(
+    int courseId,
+    List<File> files,
+  ) {
+    // Create a FormData object
+    FormData formData = FormData.fromMap({
+      'documents': files
+          .map((file) => MultipartFile.fromFileSync(
+                file.path,
+                filename: file.path.split('/').last,
+              ))
+          .toList(),
+    });
+    return _apiService.http
+        .post("/courses/$courseId/documents", data: formData)
+        .then((res) {
+      List<dynamic> documentsJson = res.data;
+      return documentsJson
+          .map((elem) => CourseDocument.fromJson(elem))
+          .toList();
+    });
+  }
+
+  Future<void> deleteCourseChapter(int courseId, int id) {
+    return _apiService.http.delete("/courses/$courseId/chapters/$id");
   }
 }

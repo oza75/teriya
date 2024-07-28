@@ -20,6 +20,7 @@ class CourseForm extends StatefulWidget {
   final List<File>? initialDocuments;
   final Future<Course> Function(String, String, List<File>) onSubmit;
   final Function() onCancel;
+  final bool editing;
 
   const CourseForm({
     super.key,
@@ -28,7 +29,7 @@ class CourseForm extends StatefulWidget {
     this.initialDocuments,
     required this.onSubmit,
     required this.onCancel,
-  });
+  }) : editing = initialCourseName != null;
 
   @override
   State<CourseForm> createState() => _CourseFormState();
@@ -57,9 +58,13 @@ class _CourseFormState extends State<CourseForm> {
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: true,
       navigationBar: CupertinoNavigationBar(
-        middle: widget.initialCourseName != null
-            ? Text('Update ${widget.initialCourseName}')
-            : const Text('Add a New Course'),
+        middle: Text(
+          widget.editing
+              ? 'Update ${widget.initialCourseName}'
+              : 'Add a New Course',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
       child: SafeArea(
         child: Padding(
@@ -322,7 +327,7 @@ class _CourseFormState extends State<CourseForm> {
         child: _submitting
             ? const CupertinoActivityIndicator(color: Colors.white)
             : Text(
-                'Add Course',
+                widget.editing ? "Update Course" : 'Add Course',
                 style: TextStyle(
                   color: isValid ? Colors.white : Colors.grey[500],
                 ),
