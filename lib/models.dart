@@ -192,6 +192,7 @@ class CourseChapter {
   final String name;
   final String description;
   final int order;
+  final String heroImageUrl;
   final List<String> documents;
 
   CourseChapter({
@@ -201,6 +202,7 @@ class CourseChapter {
     required this.description,
     required this.order,
     required this.documents,
+    required this.heroImageUrl,
   });
 
   factory CourseChapter.fromJson(Map<String, dynamic> json) {
@@ -210,7 +212,25 @@ class CourseChapter {
       name: json['name'],
       description: json['description'],
       order: json['order'],
+      heroImageUrl: json['hero_image_url'],
       documents: List<String>.from(json['documents']),
+    );
+  }
+}
+
+class CourseChapterSection {
+  final String title;
+  final String content;
+
+  CourseChapterSection({
+    required this.title,
+    required this.content,
+  });
+
+  factory CourseChapterSection.fromJson(Map<String, dynamic> json) {
+    return CourseChapterSection(
+      title: json['title'],
+      content: json['text'],
     );
   }
 }

@@ -120,4 +120,22 @@ class CourseService extends ChangeNotifier {
   Future<void> deleteCourseChapter(int courseId, int id) {
     return _apiService.http.delete("/courses/$courseId/chapters/$id");
   }
+
+  Future<List<CourseChapterSection>> chapterSections(CourseChapter chapter) {
+    return _apiService.http
+        .get("/courses/${chapter.courseId}/chapters/${chapter.id}/contents")
+        .then((res) {
+      List<dynamic> data = res.data;
+      return data.map((elem) => CourseChapterSection.fromJson(elem)).toList();
+    });
+  }
+
+  Future<List<CourseDocument>> fetchChapterDocuments(CourseChapter chapter) {
+    return _apiService.http
+        .get("/courses/${chapter.courseId}/chapters/${chapter.id}/documents")
+        .then((res) {
+      List<dynamic> documents = res.data;
+      return documents.map((elem) => CourseDocument.fromJson(elem)).toList();
+    });
+  }
 }
