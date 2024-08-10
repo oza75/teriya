@@ -159,4 +159,26 @@ class CourseService extends ChangeNotifier {
         "/courses/${chapter.courseId}/chapters/${chapter.id}/progression",
         data: {"title": section.title});
   }
+
+  Future<SectionSummaryValidationResult> validateChapterSectionSummary(
+    CourseChapter chapter,
+    CourseChapterSection section,
+    File image,
+  ) {
+    FormData formData = FormData.fromMap({
+      'image': MultipartFile.fromFileSync(
+        image.path,
+        filename: image.path.split('/').last,
+      ),
+      'title': section.title
+    });
+    return _apiService.http
+        .post(
+      "/courses/${chapter.courseId}/chapters/${chapter.id}/validate-summary",
+      data: formData,
+    )
+        .then((res) {
+      return SectionSummaryValidationResult.fromJson(res.data);
+    });
+  }
 }

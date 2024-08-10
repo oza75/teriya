@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:Teriya/components/chat_actions.dart';
 import 'package:Teriya/components/delayed_visibility.dart';
+import 'package:Teriya/components/feedback.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +18,7 @@ class ChatConversation extends StatefulWidget {
   final Widget? topChild;
   final ScrollController? scrollController;
   final bool? showInput;
+  final bool initialSendMessage;
   final Function()? onConversationLoaded;
 
   const ChatConversation({
@@ -25,6 +27,7 @@ class ChatConversation extends StatefulWidget {
     this.topChild,
     this.scrollController,
     this.showInput = true,
+    this.initialSendMessage = false,
     this.onConversationLoaded,
   });
 
@@ -45,7 +48,7 @@ class _ChatConversationState extends State<ChatConversation> {
         Provider.of<ConversationService>(context, listen: false)
             .loadConversation(widget.conversationId)
             .then((conversation) {
-      if (conversation.messages.isEmpty) {
+      if (conversation.messages.isEmpty && widget.initialSendMessage) {
         _sendMessage();
       }
 
@@ -86,6 +89,9 @@ class _ChatConversationState extends State<ChatConversation> {
           _redirectAction(context, reply);
         }
       });
+    }).catchError((err) {
+      print(err);
+      showSnackbar(context, const Text("Error while sending message !"));
     });
   }
 
@@ -294,9 +300,16 @@ class _ChatConversationMessageInputState
                 delay: widget.quickRepliesDelay,
                 child: _buildQuickReplies(),
               ),
-            Padding(
-              padding:
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.0),
+                border: Border.all(
+                  color: Colors.grey[300] as Color,
+                ),
+              ),
+              margin:
                   const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+              padding: const EdgeInsets.only(right: 2),
               child: Row(
                 children: [
                   IconButton(
@@ -332,16 +345,14 @@ class _ChatConversationMessageInputState
                         horizontal: 12.0,
                         vertical: 10.0,
                       ),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
-                        // Background color of the text field
-                        borderRadius: BorderRadius.circular(12.0),
-                        // Rounded corners
-                        border: Border.all(
-                          color: Colors.grey[300] as Color,
-                        ), // Removes default underline on iOS
                       ),
-                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        height: 1.5,
+                      ),
                     ),
                   ),
                 ],

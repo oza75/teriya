@@ -1,13 +1,7 @@
-import 'package:Teriya/pages/courses/CourseList.dart';
-import 'package:Teriya/pages/courses/ShowCourse.dart';
 import 'package:Teriya/pages/onboarding.dart';
-import 'package:Teriya/pages/profile.dart';
-import 'package:Teriya/pages/talk_with_ally.dart';
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
-import 'components/adaptive_bottom_nav.dart';
 import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 

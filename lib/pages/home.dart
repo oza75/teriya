@@ -1,4 +1,5 @@
 import 'package:Teriya/components/adaptive_bottom_nav.dart';
+import 'package:Teriya/pages/ally/conversation_list.dart';
 import 'package:Teriya/pages/courses/CourseList.dart';
 import 'package:Teriya/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,7 +39,7 @@ class _HomePageState extends State<HomePage> {
         icon: Symbols.neurology,
         label: "Talk with Ally",
         page: const Center(
-          child: Text("Ally page"),
+          child: ConversationList(),
         ),
       ),
       AdaptiveBottomNavItem(

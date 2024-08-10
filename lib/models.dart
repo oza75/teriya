@@ -5,7 +5,7 @@ enum ConversationMessageType { text, image, video, link }
 
 enum ConversationMessageSenderType { user, ally }
 
-enum ConversationType { onboarding }
+enum ConversationType { onboarding, normal }
 
 class TeriyaUser {
   final int id;
@@ -93,6 +93,9 @@ class ConversationMessage {
 
 class Conversation {
   final String id;
+  final String? title;
+  final DateTime createdAt;
+  final DateTime updatedAt;
   final List<ConversationMessage> messages;
   final ConversationType conversationType;
 
@@ -100,16 +103,22 @@ class Conversation {
     required this.id,
     required this.messages,
     required this.conversationType,
+    required this.createdAt,
+    required this.updatedAt,
+    this.title,
   });
 
   factory Conversation.fromJson(Map<String, dynamic> json) {
-    List<dynamic> messages = json['messages'];
+    List<dynamic> messages = json['messages'] ?? [];
 
     return Conversation(
       id: json['id'],
+      title: json['title'],
       messages:
           messages.map((elem) => ConversationMessage.fromJson(elem)).toList(),
       conversationType: ConversationType.values.byName(json['type']),
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
     );
   }
 
@@ -288,6 +297,46 @@ class CourseChapterSection {
               (json["activity"] as Map<String, dynamic>).isNotEmpty)
           ? SectionActivity.fromJson(json['activity'])
           : null,
+    );
+  }
+}
+
+class SectionSummaryValidationPoint {
+  final String title;
+  final bool passed;
+
+  SectionSummaryValidationPoint({
+    required this.title,
+    required this.passed,
+  });
+
+  factory SectionSummaryValidationPoint.fromJson(Map<String, dynamic> json) {
+    return SectionSummaryValidationPoint(
+      title: json['title'],
+      passed: json['passed'],
+    );
+  }
+}
+
+class SectionSummaryValidationResult {
+  final List<SectionSummaryValidationPoint> points;
+  final double score;
+  final String feedback;
+
+  SectionSummaryValidationResult({
+    required this.points,
+    required this.score,
+    required this.feedback,
+  });
+
+  factory SectionSummaryValidationResult.fromJson(Map<String, dynamic> json) {
+    List<dynamic> pointsJson = json['validation_points'];
+    return SectionSummaryValidationResult(
+      points: pointsJson
+          .map((item) => SectionSummaryValidationPoint.fromJson(item))
+          .toList(),
+      score: json['score'],
+      feedback: json['feedback'],
     );
   }
 }

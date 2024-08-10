@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:Teriya/components/feedback.dart';
 import 'package:Teriya/pages/courses/ChapterDocumentsList.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 import '../../models.dart';
 import '../../services/course_service.dart';
@@ -185,6 +187,7 @@ class _ShowChapterState extends State<ShowChapter> {
                   var section = item.$2;
                   return ChapterSection(
                     section: section,
+                    chapter: widget.chapter,
                     disabled: index > _currentSection,
                     active:
                         index == _currentSection && index < sections.length - 1,
@@ -291,6 +294,7 @@ class _ShowChapterState extends State<ShowChapter> {
 
 class ChapterSection extends StatelessWidget {
   final CourseChapterSection section;
+  final CourseChapter chapter;
   final bool disabled;
   final bool active;
   final Function(BuildContext context) onNext;
@@ -301,6 +305,7 @@ class ChapterSection extends StatelessWidget {
     required this.disabled,
     required this.active,
     required this.onNext,
+    required this.chapter,
   });
 
   @override
@@ -334,7 +339,14 @@ class ChapterSection extends StatelessWidget {
       builder: (context) {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.90,
-          child: SummaryActivity(section: section),
+          child: SummaryActivity(
+            section: section,
+            chapter: chapter,
+            onFinish: () {
+              Navigator.of(context).pop();
+              onNext(context);
+            },
+          ),
         );
         return const Center(child: Text("Hello summary"));
       },
@@ -663,10 +675,14 @@ class _QuizzState extends State<Quizz> {
 
 class SummaryActivity extends StatefulWidget {
   final CourseChapterSection section;
+  final CourseChapter chapter;
+  final Function() onFinish;
 
   const SummaryActivity({
     super.key,
     required this.section,
+    required this.chapter,
+    required this.onFinish,
   });
 
   @override
@@ -674,7 +690,36 @@ class SummaryActivity extends StatefulWidget {
 }
 
 class _SummaryActivityState extends State<SummaryActivity> {
-  bool _summarizeView = true;
+  bool _validating = false;
+  SectionSummaryValidationResult? _result;
+
+  void _validateSummary(File image) {
+    setState(() => _validating = true);
+    Provider.of<CourseService>(context, listen: false)
+        .validateChapterSectionSummary(
+      widget.chapter,
+      widget.section,
+      image,
+    )
+        .then((result) {
+      setState(() {
+        _validating = false;
+        _result = result;
+      });
+    }).catchError((err) {
+      setState(() {
+        _validating = false;
+      });
+      showSnackbar(context, const Text("Error while validating..."));
+    });
+  }
+
+  void _onRetry() {
+    setState(() {
+      _result = null;
+      _validating = false;
+    });
+  }
 
   void _handleTakePicture() async {
     try {
@@ -705,12 +750,10 @@ class _SummaryActivityState extends State<SummaryActivity> {
       // Check if an image is selected
       if (image != null) {
         File file = File(image.path); // Convert XFile to a File
-        print("Image selected: ${file.path}");
-      } else {
-        print("No image selected.");
+        _validateSummary(file);
       }
     } catch (e) {
-      print("Failed to pick image: $e");
+      showSnackbar(context, Text("Failed to load picture."));
     }
   }
 
@@ -726,7 +769,7 @@ class _SummaryActivityState extends State<SummaryActivity> {
           ),
         ],
       ),
-      body: _summarizeView
+      body: _result == null
           ? _buildSummarizeView(context)
           : _buildValidationView(context),
     );
@@ -734,7 +777,12 @@ class _SummaryActivityState extends State<SummaryActivity> {
 
   Widget _buildSummarizeView(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top,
+        left: 16,
+        right: 16,
+        bottom: MediaQuery.of(context).padding.bottom,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -754,7 +802,7 @@ class _SummaryActivityState extends State<SummaryActivity> {
           ),
           const SizedBox(height: 8),
           Text(
-            "Grab a pen, channel your inner scholar, and jot down a summary of '${widget.section.title}'. Once done, snap a pic so Ally can check it out!",
+            "Take a moment to write down a summary of '${widget.section.title}' using pen and paper. Once you're done, snap a picture and let Ally review your work.",
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.grey[500],
@@ -763,42 +811,163 @@ class _SummaryActivityState extends State<SummaryActivity> {
             ),
           ),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CupertinoButton(
-                onPressed: _handleTakePicture,
-                child: const Row(
-                  children: [
-                    Icon(Icons.camera_alt, color: CupertinoColors.activeBlue),
-                    SizedBox(width: 4),
-                    Text("Take Picture"),
-                  ],
+          if (!_validating)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                CupertinoButton(
+                  onPressed: _handleTakePicture,
+                  child: const Row(
+                    children: [
+                      Icon(Icons.camera_alt, color: CupertinoColors.activeBlue),
+                      SizedBox(width: 4),
+                      Text("Take Picture"),
+                    ],
+                  ),
                 ),
-              ),
-              CupertinoButton(
-                onPressed: _handleChoosePicture,
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.photo_library,
-                      color: CupertinoColors.activeBlue,
-                    ),
-                    SizedBox(width: 4),
-                    Text("Choose Picture"),
-                  ],
+                CupertinoButton(
+                  onPressed: _handleChoosePicture,
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.photo_library,
+                        color: CupertinoColors.activeBlue,
+                      ),
+                      SizedBox(width: 4),
+                      Text("Choose Picture"),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          if (_validating)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Validating...",
+                  style: TextStyle(color: CupertinoColors.activeBlue),
+                ),
+                PlatformCircularProgressIndicator()
+              ],
+            )
         ],
       ),
     );
   }
 
   Widget _buildValidationView(BuildContext context) {
-    return const Center(
-      child: Text("Validation view"),
+    final success = _result!.score >= 80;
+    var btnText = "Next";
+    var btnAction = widget.onFinish;
+    if (!success) {
+      btnText = "Retry";
+      btnAction = _onRetry;
+    }
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        top: 16.0,
+        left: 16.0,
+        right: 16,
+        bottom: MediaQuery.of(context).padding.bottom,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 60),
+          SizedBox(
+            width: 180,
+            height: 180,
+            child: SfRadialGauge(
+              axes: <RadialAxis>[
+                RadialAxis(
+                  minimum: 0,
+                  maximum: 100,
+                  ranges: <GaugeRange>[
+                    GaugeRange(
+                      startValue: 0,
+                      endValue: 100,
+                      color: Colors.grey[300],
+                    ),
+                    GaugeRange(
+                      startValue: 0,
+                      endValue: _result!.score,
+                      color: success ? Colors.green : Colors.red,
+                    ),
+                  ],
+                  annotations: <GaugeAnnotation>[
+                    GaugeAnnotation(
+                      widget: Container(
+                          child: Text(_result!.score.toString(),
+                              style: TextStyle(
+                                color: success ? Colors.green : Colors.red,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ))),
+                      angle: 90,
+                      positionFactor: 0,
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+          Text(
+            success ? "Well Done!" : "Try Again!",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: success ? Colors.green : Colors.red,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _result!.feedback,
+            textAlign: TextAlign.center,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Column(
+            children: [
+              ..._result!.points.take(3).map((point) {
+                return Material(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 2),
+                    child: ListTile(
+                      leading: Icon(
+                        point.passed ? Icons.check_circle : Icons.cancel,
+                        color: point.passed ? Colors.green : Colors.red,
+                      ),
+                      title: Text(
+                        point.title,
+                        style: TextStyle(
+                          color: point.passed ? Colors.green : Colors.red,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: CupertinoButton(
+                  color: CupertinoColors.activeBlue,
+                  onPressed: btnAction,
+                  child: Text(btnText),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

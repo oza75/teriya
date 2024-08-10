@@ -32,6 +32,12 @@ class ConversationService extends ChangeNotifier {
     });
   }
 
+  Future<Conversation> createNormalConversation() {
+    return apiService.http.post("/conversations/create").then((res) {
+      return Conversation.fromJson(res.data);
+    });
+  }
+
   void setCurrentConversation(Conversation conversation) {
     currentConversation = conversation;
     notifyListeners();
@@ -75,6 +81,15 @@ class ConversationService extends ChangeNotifier {
       currentConversation!.messages.addAll(newMessages);
 
       notifyListeners();
+    });
+  }
+
+  Future<List<Conversation>> fetchConversations() {
+    return apiService.http.get("/conversations").then((res) {
+      List<dynamic> conversationsJson = res.data;
+      return conversationsJson
+          .map((item) => Conversation.fromJson(item))
+          .toList();
     });
   }
 }
