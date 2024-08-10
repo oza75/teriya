@@ -218,19 +218,76 @@ class CourseChapter {
   }
 }
 
+enum SectionActivityTypes { quizz, summary }
+
+class SectionActivityQuizzQuestion {
+  final String question;
+  final List<String> possibleAnswers;
+  final String solution;
+  final String explanation;
+
+  SectionActivityQuizzQuestion({
+    required this.question,
+    required this.possibleAnswers,
+    required this.solution,
+    required this.explanation,
+  });
+
+  factory SectionActivityQuizzQuestion.fromJson(Map<String, dynamic> json) {
+    return SectionActivityQuizzQuestion(
+      question: json['question'],
+      possibleAnswers: List<String>.from(json['possible_answers']),
+      solution: json['solution'],
+      explanation: json['explanation'],
+    );
+  }
+}
+
+class SectionActivity {
+  final SectionActivityTypes type;
+  final List<SectionActivityQuizzQuestion> questions;
+
+  SectionActivity({
+    required this.type,
+    required this.questions,
+  });
+
+  factory SectionActivity.fromJson(Map<String, dynamic> json) {
+    List<dynamic> questionsJson = json['questions'] ?? [];
+    return SectionActivity(
+      type: json['type'] == "quizz"
+          ? SectionActivityTypes.quizz
+          : SectionActivityTypes.summary,
+      questions: questionsJson
+          .map((item) => SectionActivityQuizzQuestion.fromJson(item))
+          .toList(),
+    );
+  }
+}
+
 class CourseChapterSection {
   final String title;
   final String content;
+  final SectionActivity? activity;
+  bool passed = false;
 
   CourseChapterSection({
     required this.title,
     required this.content,
+    required this.passed,
+    this.activity,
   });
 
   factory CourseChapterSection.fromJson(Map<String, dynamic> json) {
     return CourseChapterSection(
       title: json['title'],
-      content: json['text'],
+      content: json['content'],
+      passed: json.containsKey("passed") ? json['passed'] : false,
+      activity: (json.containsKey("activity") &&
+              json["activity"] != null &&
+              (json["activity"] as Map<String, dynamic>).isNotEmpty)
+          ? SectionActivity.fromJson(json['activity'])
+          : null,
     );
   }
 }

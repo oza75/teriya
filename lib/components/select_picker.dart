@@ -33,6 +33,7 @@ class PlatformDependentPicker extends StatelessWidget {
       child: CupertinoButton(
         color: isDarkTheme ? Colors.grey[800] : Colors.grey[200],
         child: iosSelectedItem,
+        padding: const EdgeInsets.symmetric(vertical: 12),
         onPressed: () => showCupertinoModalPopup(
           context: context,
           builder: (_) => SizedBox(
@@ -63,7 +64,7 @@ class PlatformDependentPicker extends StatelessWidget {
         child: DropdownButton<String>(
           dropdownColor: isDarkTheme ? Colors.grey[800] : Colors.grey[200],
           isExpanded: true,
-          itemHeight: 52,
+          itemHeight: 50,
           hint: hint,
           underline: const SizedBox.shrink(),
           onChanged: (String? newValue) {

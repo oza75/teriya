@@ -17,14 +17,16 @@ import '../services/course_service.dart';
 class CourseForm extends StatefulWidget {
   final String? initialCourseName;
   final String? initialMajor;
+  final String? initialLanguage;
   final List<File>? initialDocuments;
-  final Future<Course> Function(String, String, List<File>) onSubmit;
+  final Future<Course> Function(String, String, String, List<File>) onSubmit;
   final Function() onCancel;
   final bool editing;
 
   const CourseForm({
     super.key,
     this.initialCourseName,
+    this.initialLanguage,
     this.initialMajor,
     this.initialDocuments,
     required this.onSubmit,
@@ -38,7 +40,9 @@ class CourseForm extends StatefulWidget {
 class _CourseFormState extends State<CourseForm> {
   late TextEditingController _courseNameController;
   late final Future<List<String>> majorsFuture;
+  final List<String> supportedLanguages = ['French', 'English'];
   String? _selectedMajor;
+  String? _language;
   List<File> documents = [];
   bool _submitting = false;
 
@@ -50,6 +54,7 @@ class _CourseFormState extends State<CourseForm> {
     _courseNameController =
         TextEditingController(text: widget.initialCourseName);
     _selectedMajor = widget.initialMajor;
+    _language = widget.initialLanguage ?? supportedLanguages[0];
     documents = widget.initialDocuments ?? [];
   }
 
@@ -72,6 +77,7 @@ class _CourseFormState extends State<CourseForm> {
           child: ListView(
             children: [
               _buildCourseNameInput(),
+              if (!widget.editing) _buildCourseLanguageSelector(),
               _buildMajorSelector(),
               _buildDocumentPicker(),
               _buildSubmitButton(),
@@ -103,13 +109,53 @@ class _CourseFormState extends State<CourseForm> {
           CupertinoTextField(
             controller: _courseNameController,
             placeholder: 'E.g., BIO 82 – Genetics',
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             clearButtonMode: OverlayVisibilityMode.editing,
             decoration: BoxDecoration(
               color: isDarkTheme ? Colors.grey[800] : Colors.grey[200],
               borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCourseLanguageSelector() {
+    final isDarkTheme = CupertinoTheme.brightnessOf(context) == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Course language",
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: isDarkTheme ? Colors.white : Colors.black,
+            ),
+          ),
+          const SizedBox(height: 10),
+          PlatformDependentPicker(
+            items: supportedLanguages,
+            hint: Text(
+              "Select a language",
+              style: TextStyle(
+                color: isDarkTheme ? Colors.white60 : Colors.black54,
+              ),
+            ),
+            androidValue: _language,
+            onSelectedItemChanged: (value) {
+              var item = value is int ? supportedLanguages[value] : value;
+              setState(() => _language = item);
+            },
+            iosSelectedItem: Text(
+              _language ?? "Choose a language",
+              style: TextStyle(
+                color: isDarkTheme ? Colors.grey[300] : Colors.grey[600],
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -317,8 +363,9 @@ class _CourseFormState extends State<CourseForm> {
 
   Widget _buildSubmitButton() {
     final isDarkTheme = CupertinoTheme.brightnessOf(context) == Brightness.dark;
-    final isValid =
-        _courseNameController.text.isNotEmpty && _selectedMajor != null;
+    final isValid = _courseNameController.text.isNotEmpty &&
+        _selectedMajor != null &&
+        _language != null;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: CupertinoButton.filled(
@@ -342,6 +389,7 @@ class _CourseFormState extends State<CourseForm> {
         .onSubmit(
       _courseNameController.text,
       _selectedMajor!,
+      _language!,
       documents,
     )
         .then((course) {
@@ -366,9 +414,10 @@ class CreateCourse extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CourseForm(
-      onSubmit: (name, major, documents) => _createCourse(
+      onSubmit: (name, major, language, documents) => _createCourse(
         context,
         name,
+        language,
         major,
         documents,
       ),
@@ -381,11 +430,12 @@ class CreateCourse extends StatelessWidget {
   Future<Course> _createCourse(
     BuildContext context,
     String name,
+    String language,
     String major,
     List<File> documents,
   ) {
     return Provider.of<CourseService>(context, listen: false)
-        .createCourse(name, major, documents)
+        .createCourse(name, language, major, documents)
         .then((course) {
       if (onAdd != null) {
         onAdd!(course);
@@ -407,7 +457,7 @@ class UpdateCourse extends StatelessWidget {
         initialCourseName: course.name,
         initialMajor: course.major,
         initialDocuments: [],
-        onSubmit: (name, major, documents) {
+        onSubmit: (name, major, language, documents) {
           return _updateCourse(
             context,
             name,

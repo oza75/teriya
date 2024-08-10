@@ -42,6 +42,11 @@ class _ShowCourseState extends State<ShowCourse> {
     }
   }
 
+  void _reGenerateChapters() {
+    Provider.of<CourseService>(context, listen: false)
+        .reGenerateChapters(widget.courseId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -114,17 +119,29 @@ class _ShowCourseState extends State<ShowCourse> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 12,
                           ),
-                          child: Text(
-                            "Chapters",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 20,
-                            ),
+                          child: Row(
+                            children: [
+                              const Text(
+                                "Chapters",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                child: const Icon(
+                                  CupertinoIcons.refresh,
+                                  size: 20,
+                                ),
+                                onPressed: _reGenerateChapters,
+                              )
+                            ],
                           ),
                         ),
                         Expanded(

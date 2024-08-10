@@ -11,10 +11,12 @@ class CourseService extends ChangeNotifier {
   List<String> majors = [];
 
   /// Creates a new course with the provided details and documents.
-  Future<Course> createCourse(String name, String major, List<File> documents) {
+  Future<Course> createCourse(
+      String name, String language, String major, List<File> documents) {
     // Create a FormData object
     FormData formData = FormData.fromMap({
       'name': name,
+      'language': language,
       'major': major,
       // Convert the list of File objects into a list of MultipartFile objects
       'documents': documents
@@ -137,5 +139,24 @@ class CourseService extends ChangeNotifier {
       List<dynamic> documents = res.data;
       return documents.map((elem) => CourseDocument.fromJson(elem)).toList();
     });
+  }
+
+  Future<void> reGenerateChapters(int courseId) {
+    return _apiService.http.post("/courses/$courseId/chapters/regenerate");
+  }
+
+  Future<void> reGenerateChapterContents(CourseChapter chapter) {
+    return _apiService.http.post(
+      "/courses/${chapter.courseId}/chapters/${chapter.id}/contents/regenerate",
+    );
+  }
+
+  Future<void> updateChapterProgression(
+    CourseChapter chapter,
+    CourseChapterSection section,
+  ) {
+    return _apiService.http.put(
+        "/courses/${chapter.courseId}/chapters/${chapter.id}/progression",
+        data: {"title": section.title});
   }
 }
