@@ -181,4 +181,20 @@ class CourseService extends ChangeNotifier {
       return SectionSummaryValidationResult.fromJson(res.data);
     });
   }
+
+  Future<List<CourseChapter>> fetchUserChapters() {
+    return _apiService.http.get("/chapters").then((res) {
+      List<dynamic> chaptersJson = res.data;
+      return chaptersJson.map((item) => CourseChapter.fromJson(item)).toList();
+    });
+  }
+
+  Future<List<SectionActivityQuizzQuestion>> fetchQuizzes() {
+    return _apiService.http.get("/quizzes").then((res) {
+      List<dynamic> quizzesJson = res.data;
+      return quizzesJson
+          .map((item) => SectionActivityQuizzQuestion.fromJson(item))
+          .toList();
+    });
+  }
 }

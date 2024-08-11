@@ -206,6 +206,8 @@ class CourseChapter {
   final String name;
   final String language;
   final String description;
+  final Course? course;
+  final double? progress;
   final int order;
   final String heroImageUrl;
   final List<String> documents;
@@ -219,6 +221,8 @@ class CourseChapter {
     required this.order,
     required this.documents,
     required this.heroImageUrl,
+    this.course,
+    this.progress,
   });
 
   factory CourseChapter.fromJson(Map<String, dynamic> json) {
@@ -231,6 +235,10 @@ class CourseChapter {
       order: json['order'],
       heroImageUrl: json['hero_image_url'],
       documents: List<String>.from(json['documents']),
+      course: (json.containsKey('course') && json['course'] != null)
+          ? Course.fromJson(json['course'])
+          : null,
+      progress: json.containsKey('progress') ? json['progress'] : null,
     );
   }
 }
