@@ -27,8 +27,10 @@ class _ShowConversationState extends State<ShowConversation> {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      body: ChatConversation(
-        conversationId: widget.conversation.id,
+      body: SafeArea(
+        child: ChatConversation(
+          conversationId: widget.conversation.id,
+        ),
       ),
     );
   }

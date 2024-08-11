@@ -92,4 +92,8 @@ class ConversationService extends ChangeNotifier {
           .toList();
     });
   }
+
+  Future<void> deleteConversation(Conversation conversation) {
+    return apiService.http.delete("/conversations/${conversation.id}");
+  }
 }

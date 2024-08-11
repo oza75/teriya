@@ -120,6 +120,7 @@ class _MeetAllyOnboardingState extends State<MeetAllyOnboarding> {
                                 curve: Curves.easeIn,
                               );
                             });
+                            return;
                           },
                         ),
                 ),

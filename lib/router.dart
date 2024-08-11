@@ -6,7 +6,7 @@ import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'pages/loading_splash.dart';
-import 'pages/home.dart';
+import 'pages/tab_bar.dart';
 import 'pages/welcome.dart';
 import 'package:go_router/go_router.dart';
 
@@ -50,7 +50,7 @@ class AppRouter {
           path: '/splash', name: 'splash', page: const LoadingSplashScreen()),
       FadeTransitionRoute(
           path: '/welcome', name: 'welcome', page: const TeriyaWelcomeScreen()),
-      FadeTransitionRoute(path: '/home', name: 'home', page: const HomePage()),
+      FadeTransitionRoute(path: '/home', name: 'home', page: const TabBarPage()),
       FadeTransitionRoute(
         path: '/onboarding',
         name: 'onboarding',

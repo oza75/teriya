@@ -134,6 +134,7 @@ class Conversation {
 class Course {
   final int id;
   final String name;
+  final String language;
   final String major;
   final MajorIconData majorIconData;
   final List<CourseDocument>? documents;
@@ -144,6 +145,7 @@ class Course {
     required this.name,
     required this.major,
     required this.majorIconData,
+    required this.language,
     List<CourseDocument>? documents,
     List<CourseChapter>? chapters,
   })  : documents = documents ?? [],
@@ -156,12 +158,15 @@ class Course {
       id: json['id'],
       name: json['name'],
       major: json['major'],
+      language: json['language'],
       majorIconData: majorIconsMap[json['major'].toString().toLowerCase()] ??
           MajorIconData.raw(),
       documents:
           documentsJson.map((elem) => CourseDocument.fromJson(elem)).toList(),
-      chapters:
-          chaptersJson.map((elem) => CourseChapter.fromJson(elem)).toList(),
+      chapters: chaptersJson.map((elem) {
+        elem['language'] = json['language'];
+        return CourseChapter.fromJson(elem);
+      }).toList(),
     );
   }
 }
@@ -199,6 +204,7 @@ class CourseChapter {
   final int id;
   final int courseId;
   final String name;
+  final String language;
   final String description;
   final int order;
   final String heroImageUrl;
@@ -208,6 +214,7 @@ class CourseChapter {
     required this.id,
     required this.courseId,
     required this.name,
+    required this.language,
     required this.description,
     required this.order,
     required this.documents,
@@ -219,6 +226,7 @@ class CourseChapter {
       id: json['id'],
       courseId: json['course_id'],
       name: json['name'],
+      language: json['language'],
       description: json['description'],
       order: json['order'],
       heroImageUrl: json['hero_image_url'],

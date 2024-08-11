@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:Teriya/components/feedback.dart';
+import 'package:Teriya/pages/ally/explain_section_with_ally.dart';
 import 'package:Teriya/pages/courses/ChapterDocumentsList.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -353,6 +354,22 @@ class ChapterSection extends StatelessWidget {
     );
   }
 
+  void _explainWithAlly(BuildContext context) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (content) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.90,
+          child: ExplainSectionWithAlly(
+            section: section,
+            language: chapter.language,
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildDisabled() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -397,7 +414,7 @@ class ChapterSection extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.red[100],
@@ -413,18 +430,16 @@ class ChapterSection extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color: const Color(0XFFBFDBFE),
                 ),
                 child: IconButton(
                   iconSize: 30,
-                  icon: const Icon(Symbols.neurology),
+                  icon: const Icon(Symbols.quickreply),
                   color: const Color(0XFF3B82F6),
-                  onPressed: () {
-                    // Handle another action
-                  },
+                  onPressed: () => _explainWithAlly(context),
                 ),
               ),
               if (active) const Spacer(),
@@ -503,72 +518,74 @@ class _QuizzState extends State<Quizz> {
           ),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 60),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              question.question,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-                height: 1.5,
-                fontWeight: FontWeight.w500,
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                question.question,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  height: 1.5,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Flexible(
-            child: Material(
-              color: Colors.white,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                children: question.possibleAnswers.map((answer) {
-                  final bool isCorrect = answer == question.solution;
-                  final bool isSelected = answer == _selectedAnswer;
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Colors.grey[500]!,
-                        style: BorderStyle.solid,
+            const SizedBox(height: 16),
+            Flexible(
+              child: Material(
+                color: Colors.white,
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  children: question.possibleAnswers.map((answer) {
+                    final bool isCorrect = answer == question.solution;
+                    final bool isSelected = answer == _selectedAnswer;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.grey[500]!,
+                          style: BorderStyle.solid,
+                        ),
                       ),
-                    ),
-                    child: ListTile(
-                      tileColor: _answered
-                          ? isCorrect
-                              ? Colors.green.withOpacity(0.2)
-                              : isSelected
-                                  ? Colors.red.withOpacity(0.2)
-                                  : null
-                          : null,
-                      title: Text(
-                        answer,
-                        textAlign: TextAlign.center,
+                      child: ListTile(
+                        tileColor: _answered
+                            ? isCorrect
+                                ? Colors.green.withOpacity(0.2)
+                                : isSelected
+                                    ? Colors.red.withOpacity(0.2)
+                                    : null
+                            : null,
+                        title: Text(
+                          answer,
+                          textAlign: TextAlign.center,
+                        ),
+                        leading: _answered
+                            ? isCorrect
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : isSelected
+                                    ? const Icon(Icons.cancel,
+                                        color: Colors.red)
+                                    : null
+                            : null,
+                        onTap: () => onSelectAnswer(question, answer),
                       ),
-                      leading: _answered
-                          ? isCorrect
-                              ? const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                )
-                              : isSelected
-                                  ? const Icon(Icons.cancel, color: Colors.red)
-                                  : null
-                          : null,
-                      onTap: () => onSelectAnswer(question, answer),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -753,7 +770,7 @@ class _SummaryActivityState extends State<SummaryActivity> {
         _validateSummary(file);
       }
     } catch (e) {
-      showSnackbar(context, Text("Failed to load picture."));
+      showSnackbar(context, const Text("Failed to load picture."));
     }
   }
 
@@ -769,20 +786,17 @@ class _SummaryActivityState extends State<SummaryActivity> {
           ),
         ],
       ),
-      body: _result == null
-          ? _buildSummarizeView(context)
-          : _buildValidationView(context),
+      body: SafeArea(
+        child: _result == null
+            ? _buildSummarizeView(context)
+            : _buildValidationView(context),
+      ),
     );
   }
 
   Widget _buildSummarizeView(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top,
-        left: 16,
-        right: 16,
-        bottom: MediaQuery.of(context).padding.bottom,
-      ),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -865,12 +879,7 @@ class _SummaryActivityState extends State<SummaryActivity> {
       btnAction = _onRetry;
     }
     return SingleChildScrollView(
-      padding: EdgeInsets.only(
-        top: 16.0,
-        left: 16.0,
-        right: 16,
-        bottom: MediaQuery.of(context).padding.bottom,
-      ),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

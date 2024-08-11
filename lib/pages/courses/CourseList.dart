@@ -126,7 +126,7 @@ class _CourseListState extends State<CourseList> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Text(
-                    "${course.major} - ${10 + course.id} chapters",
+                    course.major,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

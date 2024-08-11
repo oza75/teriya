@@ -32,12 +32,23 @@ class _ConversationListState extends State<ConversationList> {
   }
 
   void _fetchConversations() {
-    _conversationsFuture =
-        Provider.of<ConversationService>(context, listen: false)
-            .fetchConversations()
-            .catchError((err) {
-      showSnackbar(context, const Text("Error while loading conversations..."));
-      return err;
+    setState(() {
+      _conversationsFuture =
+          Provider.of<ConversationService>(context, listen: false)
+              .fetchConversations()
+              .catchError((err) {
+        showSnackbar(
+            context, const Text("Error while loading conversations..."));
+        return err;
+      });
+    });
+  }
+
+  void _openConversation(Conversation conversation) {
+    Navigator.of(context).push(FadeTransitionPageRoute(builder: (context) {
+      return ShowConversation(conversation: conversation);
+    })).then((_) {
+      _fetchConversations();
     });
   }
 
@@ -46,16 +57,59 @@ class _ConversationListState extends State<ConversationList> {
     Provider.of<ConversationService>(context, listen: false)
         .createNormalConversation()
         .then((res) {
+      _openConversation(res);
       setState(() => _creatingConversation = false);
-      Navigator.of(context).push(FadeTransitionPageRoute(builder: (context) {
-        return ShowConversation(conversation: res);
-      })).then((_) {
-        _fetchConversations();
-      });
     }).catchError((err) {
       print(err);
       setState(() => _creatingConversation = false);
       showSnackbar(context, const Text("Error while creating conversation !"));
+    });
+  }
+
+  Future<bool> _confirmDismiss(DismissDirection direction) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return PlatformAlertDialog(
+              title: const Text('Confirm Deletion'),
+              content: const Text(
+                'Are you sure you want to delete this conversation?',
+              ),
+              actions: <Widget>[
+                PlatformDialogAction(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                PlatformDialogAction(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Return false if the dialog is dismissed with no action
+  }
+
+  void _onRemove(Conversation conversation) {
+    Provider.of<ConversationService>(context, listen: false)
+        .deleteConversation(conversation)
+        .then((_) {
+      _fetchConversations();
+      showSnackbar(
+        context,
+        const Text(
+          "Conversation removed !",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+            color: Color(0xFF3b82f6),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
     });
   }
 
@@ -79,60 +133,82 @@ class _ConversationListState extends State<ConversationList> {
         onPressed: _talkWithAlly,
         child: const Icon(Icons.add),
       )),
-      body: FutureBuilder(
-        future: _conversationsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: PlatformCircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return _buildErrors(snapshot);
-          } else {
-            final conversations = snapshot.data!;
-            return conversations.length > 0
-                ? _buildConversationsListing(conversations)
-                : _buildEmptyView();
-          }
-        },
+      body: SafeArea(
+        child: FutureBuilder(
+          future: _conversationsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: PlatformCircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return _buildErrors(snapshot);
+            } else {
+              final conversations = snapshot.data!;
+              return conversations.length > 0
+                  ? _buildConversationsListing(conversations)
+                  : _buildEmptyView();
+            }
+          },
+        ),
       ),
     );
   }
 
   Widget _buildConversationsListing(List<Conversation> conversations) {
     return Padding(
-      padding: EdgeInsets.only(
-        top: 16,
-        left: 16,
-        right: 16,
-        bottom: MediaQuery.of(context).padding.bottom,
-      ),
+      padding: const EdgeInsets.all(16),
       child: ListView.separated(
         itemBuilder: (context, index) {
           final conversation = conversations[index];
-          return Container(
-            child: Column(
-              children: [
-                Text(
-                  conversation.id,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+          return Dismissible(
+            key: Key('conversation-${conversation.id}'),
+            direction: DismissDirection.endToStart,
+            confirmDismiss: _confirmDismiss,
+            onDismissed: (direction) {
+              _onRemove(conversation);
+            },
+            background: Container(
+              color: Colors.red,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              alignment: Alignment.centerRight,
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            child: GestureDetector(
+              onTap: () => _openConversation(conversation),
+              child: Container(
+                color: Colors.transparent,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      conversation.title ?? "Unnamed Conversation",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        height: 1.5,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Started on ${conversation.createdAt.day}/${conversation.createdAt.month}/${conversation.createdAt.year}",
+                      style: TextStyle(
+                        color: Colors.grey[500],
+                        fontSize: 15,
+                      ),
+                    )
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  "Started on ${conversation.createdAt.day}/${conversation.createdAt.month}/${conversation.createdAt.year}",
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                  ),
-                )
-              ],
+              ),
             ),
           );
         },
         separatorBuilder: (context, index) {
           return Divider(
             height: 1,
-            color: Colors.grey[300],
+            color: Colors.grey[200],
           );
         },
         itemCount: conversations.length,
@@ -143,12 +219,7 @@ class _ConversationListState extends State<ConversationList> {
   Widget _buildEmptyView() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.only(
-        top: 16,
-        left: 16,
-        right: 16,
-        bottom: MediaQuery.of(context).padding.bottom,
-      ),
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

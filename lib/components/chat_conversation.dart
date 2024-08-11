@@ -5,6 +5,7 @@ import 'package:Teriya/components/delayed_visibility.dart';
 import 'package:Teriya/components/feedback.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -18,8 +19,8 @@ class ChatConversation extends StatefulWidget {
   final Widget? topChild;
   final ScrollController? scrollController;
   final bool? showInput;
-  final bool initialSendMessage;
-  final Function()? onConversationLoaded;
+  final bool guidedConversation;
+  final Map<String, dynamic>? Function()? onConversationLoaded;
 
   const ChatConversation({
     super.key,
@@ -27,7 +28,7 @@ class ChatConversation extends StatefulWidget {
     this.topChild,
     this.scrollController,
     this.showInput = true,
-    this.initialSendMessage = false,
+    this.guidedConversation = false,
     this.onConversationLoaded,
   });
 
@@ -48,12 +49,15 @@ class _ChatConversationState extends State<ChatConversation> {
         Provider.of<ConversationService>(context, listen: false)
             .loadConversation(widget.conversationId)
             .then((conversation) {
-      if (conversation.messages.isEmpty && widget.initialSendMessage) {
+      if (conversation.messages.isEmpty && widget.guidedConversation) {
         _sendMessage();
       }
 
       if (widget.onConversationLoaded != null) {
-        widget.onConversationLoaded!();
+        final result = widget.onConversationLoaded!();
+        if (result != null && result.containsKey("send_message")) {
+          _sendMessage(ConversationMessageReply(text: result['send_message']));
+        }
       }
     });
   }
@@ -242,13 +246,16 @@ class _ChatConversationMessageState extends State<ChatConversationMessage> {
                 : const Color.fromRGBO(245, 246, 250, 1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(
-            widget.message.content,
-            style: TextStyle(
-              fontSize: 16,
-              color: isUser ? Colors.white : Colors.black,
-            ),
-          ),
+          child: isUser
+              ? Text(
+                  widget.message.content,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    height: 1.5,
+                    color: Colors.white,
+                  ),
+                )
+              : MarkdownBody(data: widget.message.content),
         ),
       ),
     );
@@ -309,18 +316,18 @@ class _ChatConversationMessageInputState
               ),
               margin:
                   const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-              padding: const EdgeInsets.only(right: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.attach_file,
-                      color: CupertinoColors.activeBlue,
-                    ),
-                    onPressed: () {
-                      // Placeholder for file upload functionality
-                    },
-                  ),
+                  // IconButton(
+                  //   icon: const Icon(
+                  //     Icons.attach_file,
+                  //     color: CupertinoColors.activeBlue,
+                  //   ),
+                  //   onPressed: () {
+                  //     // Placeholder for file upload functionality
+                  //   },
+                  // ),
                   Expanded(
                     child: CupertinoTextField(
                       readOnly: widget.readOnly ?? false,

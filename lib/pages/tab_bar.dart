@@ -1,23 +1,20 @@
 import 'package:Teriya/components/adaptive_bottom_nav.dart';
+import 'package:Teriya/pages/accounts/user_account.dart';
 import 'package:Teriya/pages/ally/conversation_list.dart';
 import 'package:Teriya/pages/courses/CourseList.dart';
-import 'package:Teriya/services/auth_service.dart';
+import 'package:Teriya/pages/home/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:provider/provider.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class TabBarPage extends StatefulWidget {
+  const TabBarPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<TabBarPage> createState() => _TabBarPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _TabBarPageState extends State<TabBarPage> {
   int currentPageIndex = 0;
 
   @override
@@ -26,9 +23,7 @@ class _HomePageState extends State<HomePage> {
       AdaptiveBottomNavItem(
         icon: Icons.home,
         label: "Home",
-        page: const Center(
-          child: Text("Home page"),
-        ),
+        page: const Home(),
       ),
       AdaptiveBottomNavItem(
         icon: CupertinoIcons.book,
@@ -44,10 +39,8 @@ class _HomePageState extends State<HomePage> {
       ),
       AdaptiveBottomNavItem(
         icon: Icons.person,
-        label: "Profile",
-        page: const Center(
-          child: Text("Profile page"),
-        ),
+        label: "Account",
+        page: const UserAccount(),
       ),
     ]);
   }
