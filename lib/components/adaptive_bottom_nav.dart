@@ -53,7 +53,7 @@ class _AdaptiveBottomNavBarState extends State<AdaptiveBottomNavBar> {
       ),
       tabBuilder: (context, index) {
         return CupertinoTabView(
-          builder: (_) => index == currentPageIndex
+          builder: (_) => (index == 0 || index == 1) && index == currentPageIndex
               ? Padding(
                   key: UniqueKey(),
                   padding: EdgeInsets.zero,
