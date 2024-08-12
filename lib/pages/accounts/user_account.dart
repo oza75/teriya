@@ -1,4 +1,5 @@
 import 'package:Teriya/services/auth_service.dart';
+import 'package:Teriya/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -22,7 +23,7 @@ class UserAccount extends StatelessWidget {
       ),
       body: SafeArea(
         child: Material(
-          color: Colors.white,
+          color: platformScaffoldBackgroundColor(context),
           child: ListView(
             children: [
               _buildSectionHeader('Details'),

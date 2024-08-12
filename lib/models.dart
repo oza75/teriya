@@ -138,7 +138,7 @@ class Course {
   final String major;
   final MajorIconData majorIconData;
   final List<CourseDocument>? documents;
-  final List<CourseChapter>? chapters;
+  List<CourseChapter>? chapters;
 
   Course({
     required this.id,

@@ -19,29 +19,31 @@ class _TabBarPageState extends State<TabBarPage> {
 
   @override
   Widget build(BuildContext context) {
-    return AdaptiveBottomNavBar(items: [
-      AdaptiveBottomNavItem(
-        icon: Icons.home,
-        label: "Home",
-        page: const Home(),
-      ),
-      AdaptiveBottomNavItem(
-        icon: CupertinoIcons.book,
-        label: "Courses",
-        page: const CourseList(),
-      ),
-      AdaptiveBottomNavItem(
-        icon: Symbols.neurology,
-        label: "Talk with Ally",
-        page: const Center(
-          child: ConversationList(),
+    return ScaffoldMessenger(
+      child: AdaptiveBottomNavBar(items: [
+        AdaptiveBottomNavItem(
+          icon: Icons.home,
+          label: "Home",
+          page: const Home(),
         ),
-      ),
-      AdaptiveBottomNavItem(
-        icon: Icons.person,
-        label: "Account",
-        page: const UserAccount(),
-      ),
-    ]);
+        AdaptiveBottomNavItem(
+          icon: CupertinoIcons.book,
+          label: "Courses",
+          page: const CourseList(),
+        ),
+        AdaptiveBottomNavItem(
+          icon: Symbols.neurology,
+          label: "Talk with Ally",
+          page: const Center(
+            child: ConversationList(),
+          ),
+        ),
+        AdaptiveBottomNavItem(
+          icon: Icons.person,
+          label: "Account",
+          page: const UserAccount(),
+        ),
+      ]),
+    );
   }
 }

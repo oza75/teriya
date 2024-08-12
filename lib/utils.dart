@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
@@ -50,18 +52,25 @@ Map<String, MajorIconData> majorIconsMap = {
   ),
 };
 
-class FadeTransitionPageRoute extends PageRouteBuilder {
-  final Function(BuildContext) builder;
+Color platformScaffoldBackgroundColor(BuildContext context) {
+  return Platform.isIOS
+      ? CupertinoTheme.of(context).scaffoldBackgroundColor
+      : Theme.of(context).scaffoldBackgroundColor;
+}
 
-  FadeTransitionPageRoute({required this.builder})
-      : super(pageBuilder: (context, __, ___) => builder(context));
-
-  @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
-    return FadeTransition(
-      opacity: animation,
-      child: child,
+Route<dynamic> customPlatformPageRoute({
+  required WidgetBuilder builder,
+  RouteSettings? settings,
+}) {
+  if (Platform.isIOS) {
+    return CupertinoPageRoute(
+      builder: builder,
+      settings: settings,
+    );
+  } else {
+    return MaterialPageRoute(
+      builder: builder,
+      settings: settings,
     );
   }
 }

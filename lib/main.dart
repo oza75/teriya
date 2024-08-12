@@ -1,4 +1,5 @@
 import 'package:Teriya/services/course_service.dart';
+import 'package:Teriya/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
@@ -24,6 +25,9 @@ class AppEntryPoint extends StatelessWidget {
         ChangeNotifierProvider<CourseService>(
           create: (_) => CourseService(),
         ),
+        ChangeNotifierProvider<SocketService>(
+          create: (_) => SocketService(),
+        ),
       ],
       child: TeriyaApp(),
     );
@@ -36,10 +40,15 @@ class TeriyaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print("building teriya app!");
-    return CupertinoApp.router(
+    return PlatformApp.router(
       routerConfig: appRouter.router,
       title: "Teriya",
-      theme: const CupertinoThemeData(brightness: Brightness.light),
+      material: (context, pl) => MaterialAppRouterData(
+        theme: ThemeData(brightness: Brightness.light),
+      ),
+      cupertino: (context, pl) => CupertinoAppRouterData(
+        theme: const CupertinoThemeData(brightness: Brightness.light),
+      ),
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
         DefaultMaterialLocalizations.delegate,

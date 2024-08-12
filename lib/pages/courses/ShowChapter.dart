@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -112,6 +113,10 @@ class _ShowChapterState extends State<ShowChapter> {
         slivers: [
           SliverAppBar(
             backgroundColor: Colors.white,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarBrightness:
+                  _isExpanded ? Brightness.dark : Brightness.light,
+            ),
             leading: IconButton(
               iconSize: 30,
               icon: Icon(
@@ -235,7 +240,7 @@ class _ShowChapterState extends State<ShowChapter> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                FadeTransitionPageRoute(
+                                customPlatformPageRoute(
                                   builder: (context) => ChapterDocumentList(
                                     chapter: widget.chapter,
                                   ),

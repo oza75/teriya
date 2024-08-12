@@ -112,6 +112,7 @@ class _MeetAllyOnboardingState extends State<MeetAllyOnboarding> {
                           conversationId: _conversationId!,
                           topChild: _buildTopChatIntroduction(context),
                           scrollController: scrollController,
+                          guidedConversation: true,
                           onConversationLoaded: () {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               _draggableController.animateTo(

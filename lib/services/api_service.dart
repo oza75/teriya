@@ -2,8 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
+import '../constants.dart';
+
 class ApiService {
-  static const String baseUrl = "http://192.168.1.43:8000/api";
+  static const String baseUrl = Constants.apiUrl;
   static const String bearerTokenKey = "bearer_token";
   final Dio http;
   final FlutterSecureStorage storage = const FlutterSecureStorage();

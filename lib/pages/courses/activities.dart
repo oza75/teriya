@@ -11,6 +11,7 @@ import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../../components/feedback.dart';
 import '../../models.dart';
 import '../../services/course_service.dart';
+import '../../utils.dart';
 
 class Quizz extends StatefulWidget {
   final List<SectionActivityQuizzQuestion> questions;
@@ -62,7 +63,7 @@ class _QuizzState extends State<Quizz> {
             const SizedBox(height: 16),
             Flexible(
               child: Material(
-                color: Colors.white,
+                color: platformScaffoldBackgroundColor(context),
                 child: ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   children: question.possibleAnswers.map((answer) {

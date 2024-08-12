@@ -62,32 +62,40 @@ class _RandomQuizzState extends State<RandomQuizz> {
   }
 
   Widget _buildEmptyView() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text(
-            "No Quizz Yet !",
-            style: TextStyle(fontWeight: FontWeight.bold),
+    return PlatformScaffold(
+      appBar: PlatformAppBar(
+        title: Text("Quizz"),
+      ),
+      body: SafeArea(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "No Quizz Yet !",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Add some courses and documents so Ally can generate some questions for you.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[500], fontSize: 15),
+              ),
+              const SizedBox(height: 25),
+              CupertinoButton(
+                color: CupertinoColors.activeBlue,
+                child: const Text("My courses"),
+                onPressed: () => Navigator.push(context,
+                    customPlatformPageRoute(builder: (context) {
+                  return const CourseList();
+                })).then((_) => _fetchQuizzes()),
+              )
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            "Add some courses so Ally can generate some questions for you.",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[500], fontSize: 15),
-          ),
-          const SizedBox(height: 12),
-          CupertinoButton(
-            child: const Text("Add course"),
-            onPressed: () => Navigator.push(context,
-                FadeTransitionPageRoute(builder: (context) {
-              return const CourseList();
-            })).then((_) => _fetchQuizzes()),
-          )
-        ],
+        ),
       ),
     );
   }

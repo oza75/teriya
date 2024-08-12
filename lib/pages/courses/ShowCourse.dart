@@ -3,15 +3,19 @@ import 'dart:io';
 import 'package:Teriya/pages/courses/CourseDocumentsList.dart';
 import 'package:Teriya/pages/courses/ShowChapter.dart';
 import 'package:Teriya/screens/courses.dart';
+import 'package:Teriya/services/auth_service.dart';
 import 'package:Teriya/services/course_service.dart';
+import 'package:Teriya/services/socket_service.dart';
 import 'package:Teriya/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../components/feedback.dart';
 import '../../models.dart';
 
@@ -26,61 +30,135 @@ class ShowCourse extends StatefulWidget {
 
 class _ShowCourseState extends State<ShowCourse> {
   late Future<Course> fetchCourseFuture;
+  Course? course;
+  bool _isLoading = true;
+  bool _hasErrors = false;
+  bool _isProcessing = false;
+  late final IO.Socket socket;
+  late final TeriyaUser user;
 
   @override
   void initState() {
     super.initState();
     _fetchCourse();
+    user = Provider.of<AuthService>(context, listen: false).user!;
+    socket = Provider.of<SocketService>(context, listen: false).socket;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _listenRealtimeEvents();
+    });
+  }
+
+  @override
+  void dispose() {
+    _unsubscribeRealtimeEvents();
+    super.dispose();
   }
 
   void _fetchCourse() {
-    if (mounted) {
-      setState(() {
-        fetchCourseFuture = Provider.of<CourseService>(context, listen: false)
-            .fetchCourse(widget.courseId);
-      });
-    }
+    print('should fetch course ...');
+    setState(() => _hasErrors = false);
+    Provider.of<CourseService>(context, listen: false)
+        .fetchCourse(widget.courseId)
+        .then((res) {
+      if (mounted) {
+        setState(() {
+          course = res;
+          _isProcessing = res.documents?.any((doc) => !doc.processed) ?? false;
+          _isLoading = false;
+          _hasErrors = false;
+        });
+      }
+      return res;
+    }).catchError((err) {
+      print(err);
+      if (mounted) {
+        setState(() {
+          _hasErrors = true;
+          _isLoading = false;
+        });
+      }
+      return err;
+    });
+  }
+
+  void _listenRealtimeEvents() async {
+    var eventPrefix = "users.${user.id}.courses.${widget.courseId}";
+    socket.on(
+      "$eventPrefix.processing-documents.end",
+      (_) => _fetchCourse(),
+    );
+
+    socket.on(
+      "$eventPrefix.processing-documents.finished-one",
+      (_) => _fetchCourse(),
+    );
+
+    socket.on(
+      "$eventPrefix.processing-documents.error",
+      (_) => showSnackbar(
+        context,
+        const Text("Error while processing one document..."),
+      ),
+    );
+
+    socket.on(
+      "$eventPrefix.processing-documents.error-removed",
+      (_) => _fetchCourse(),
+    );
+
+    socket.on(
+      "$eventPrefix.chapters.generated",
+      (_) => _fetchCourse(),
+    );
+  }
+
+  void _unsubscribeRealtimeEvents() {
+    var eventPrefix = "users.${user.id}.courses.${widget.courseId}";
+    socket.off("$eventPrefix.processing-documents.end");
+    socket.off("$eventPrefix.processing-documents.finished-one");
+    socket.off("$eventPrefix.processing-documents.error");
+    socket.off("$eventPrefix.processing-documents.error-removed");
+    socket.off("$eventPrefix.chapters.generated");
   }
 
   void _reGenerateChapters() {
     Provider.of<CourseService>(context, listen: false)
-        .reGenerateChapters(widget.courseId);
+        .reGenerateChapters(widget.courseId)
+        .then((res) {
+      if (mounted) {
+        setState(() {
+          course?.chapters = [];
+          _isProcessing = true;
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: fetchCourseFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: PlatformCircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          var course = snapshot.data!;
-          var isProcessingDocuments =
-              course.documents?.any((doc) => !doc.processed) ?? false;
-          return PlatformScaffold(
-            appBar: PlatformAppBar(
-              title: Text(
-                course.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailingActions: [
+    return PlatformScaffold(
+      appBar: PlatformAppBar(
+        title: Text(
+          course?.name ?? "Course",
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailingActions: course != null
+            ? [
                 CupertinoButton(
                   padding: EdgeInsets.zero,
                   child: const Icon(CupertinoIcons.square_pencil),
                   onPressed: () => Navigator.push(
                     context,
-                    FadeTransitionPageRoute(
+                    customPlatformPageRoute(
                       builder: (context) => UpdateCourse(
-                        course: course,
+                        course: course!,
                         onUpdate: (course) {
                           Navigator.pop(context);
                           Navigator.pushReplacement(
                             context,
-                            FadeTransitionPageRoute(
+                            customPlatformPageRoute(
                               builder: (context) =>
                                   ShowCourse(courseId: course.id),
                             ),
@@ -90,81 +168,116 @@ class _ShowCourseState extends State<ShowCourse> {
                     ),
                   ),
                 ),
+              ]
+            : [],
+      ),
+      body: SafeArea(
+        child: _isLoading
+            ? Center(child: PlatformCircularProgressIndicator())
+            : (_hasErrors ? _buildErrors() : _buildCourseContent()),
+      ),
+    );
+  }
+
+  Widget _buildErrors() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text(
+            "Oups !",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            "We got an error while fetching the course.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[500], height: 1.5),
+          ),
+          const SizedBox(height: 20),
+          CupertinoButton(
+              child: const Text("Try again !"),
+              onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                });
+                _fetchCourse();
+              })
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCourseContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        DocumentsCard(
+          documents: course!.documents ?? [],
+          course: course!,
+          onTap: () {
+            Navigator.push(
+              context,
+              customPlatformPageRoute(
+                  builder: (context) => CourseDocumentList(course: course!)),
+            ).then((_) => _fetchCourse());
+          },
+        ),
+        if (_isProcessing)
+          const Padding(
+            padding: EdgeInsets.only(top: 90),
+            child: ProcessingWidget(),
+          )
+        else
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      const Text(
+                        "Chapters",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                        ),
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: _reGenerateChapters,
+                        child: const Icon(
+                          CupertinoIcons.refresh,
+                          size: 20,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ChapterListing(
+                      chapters: course!.chapters ?? [],
+                      onRemove: (chapter) {},
+                      onTap: (chapter) {
+                        Navigator.push(
+                          context,
+                          customPlatformPageRoute(
+                              builder: (context) =>
+                                  ShowChapter(chapter: chapter)),
+                        ).then((_) => _fetchCourse());
+                      }),
+                ),
               ],
             ),
-            body: SafeArea(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                DocumentsCard(
-                  documents: course.documents ?? [],
-                  course: course,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      FadeTransitionPageRoute(
-                          builder: (context) =>
-                              CourseDocumentList(course: course)),
-                    ).then((_) => _fetchCourse());
-                  },
-                ),
-                if (isProcessingDocuments)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 90),
-                    child: ProcessingWidget(),
-                  )
-                else
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              const Text(
-                                "Chapters",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              CupertinoButton(
-                                padding: EdgeInsets.zero,
-                                child: const Icon(
-                                  CupertinoIcons.refresh,
-                                  size: 20,
-                                ),
-                                onPressed: _reGenerateChapters,
-                              )
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: ChapterListing(
-                              chapters: course.chapters ?? [],
-                              onRemove: (chapter) {},
-                              onTap: (chapter) {
-                                Navigator.push(
-                                  context,
-                                  FadeTransitionPageRoute(
-                                      builder: (context) =>
-                                          ShowChapter(chapter: chapter)),
-                                ).then((_) => _fetchCourse());
-                              }),
-                        ),
-                      ],
-                    ),
-                  )
-              ],
-            )),
-          );
-        }
-      },
+          )
+      ],
     );
   }
 }
@@ -236,7 +349,12 @@ class DocumentsCard extends StatelessWidget {
                 color: Colors.grey[400],
                 size: 24,
               ),
-            if (processing.isNotEmpty) PlatformCircularProgressIndicator(),
+            if (processing.isNotEmpty)
+              SizedBox(
+                width: 25,
+                height: 25,
+                child: PlatformCircularProgressIndicator(),
+              ),
           ],
         ),
       ),

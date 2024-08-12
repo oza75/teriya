@@ -50,7 +50,9 @@ class _ExplainSectionWithAllyState extends State<ExplainSectionWithAlly> {
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: const Text("Explanation"),
+        backgroundColor: CupertinoColors.white,
       ),
+      backgroundColor: CupertinoColors.white,
       body: SafeArea(
         child: FutureBuilder(
           future: _createConversationFuture,

@@ -353,7 +353,7 @@ class _ChatConversationMessageInputState
                         vertical: 10.0,
                       ),
                       decoration: const BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.transparent,
                       ),
                       style: const TextStyle(
                         fontSize: 16,

@@ -1,5 +1,7 @@
 import 'package:Teriya/components/feedback.dart';
 import 'package:Teriya/models.dart';
+import 'package:Teriya/pages/courses/CourseList.dart';
+import 'package:Teriya/pages/courses/ShowChapter.dart';
 import 'package:Teriya/pages/home/random_quizz.dart';
 import 'package:Teriya/services/auth_service.dart';
 import 'package:Teriya/utils.dart';
@@ -120,7 +122,7 @@ class _HomeState extends State<Home> {
             child: const Text("Start"),
             onPressed: () {
               Navigator.of(context)
-                  .push(FadeTransitionPageRoute(builder: (context) {
+                  .push(customPlatformPageRoute(builder: (context) {
                 return const RandomQuizz();
               })).then((_) => _fetchChapters());
             },
@@ -140,87 +142,132 @@ class _HomeState extends State<Home> {
           return _buildErrors();
         } else {
           final chapters = snapshot.data!;
-          return Container(
-            height: 170,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: chapters.length,
-              itemBuilder: (context, index) {
-                final chapter = chapters[index];
-                final progressPercent = (chapter.progress ?? 0) * 100;
-                return Container(
-                  width: 300,
-                  height: 170,
-                  margin: const EdgeInsets.only(right: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: chapter.course?.majorIconData.bgColor ??
-                        Colors.blueGrey[300],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: Icon(
-                          chapter.course?.majorIconData.icon ?? Icons.book,
-                          color: chapter.course?.majorIconData.color ??
-                              Colors.green,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        chapter.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      LinearProgressIndicator(
-                        value: chapter.progress,
-                        color: Colors.black,
-                        backgroundColor: Colors.grey,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                      const SizedBox(height: 10),
-                      Flexible(
-                          child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Progress",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            "${progressPercent.toStringAsFixed(2)}%",
-                            style: const TextStyle(fontSize: 14),
-                          )
-                        ],
-                      ))
-                    ],
-                  ),
-                );
-              },
-            ),
-          );
+          return chapters.isNotEmpty
+              ? _buildProgressionChapters(chapters)
+              : _buildProgressionEmptyView();
         }
       },
+    );
+  }
+
+  Widget _buildProgressionEmptyView() {
+    return Container(
+      height: 150,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.orange[200],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text(
+            "Add some documents to your courses before.",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 20),
+          CupertinoButton(
+              color: Colors.purpleAccent,
+              child: const Text("My courses"),
+              onPressed: () {
+                Navigator.of(context)
+                    .push(customPlatformPageRoute(
+                        builder: (context) => const CourseList()))
+                    .then((_) => _fetchChapters());
+              })
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressionChapters(List<CourseChapter> chapters) {
+    return Container(
+      height: 170,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: chapters.length,
+        itemBuilder: (context, index) {
+          final chapter = chapters[index];
+          final progressPercent = (chapter.progress ?? 0) * 100;
+          return GestureDetector(
+            onTap: () => Navigator.of(context)
+                .push(customPlatformPageRoute(
+                    builder: (context) => ShowChapter(chapter: chapter)))
+                .then((_) => _fetchChapters()),
+            child: Container(
+              width: 300,
+              height: 170,
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: chapter.course?.majorIconData.bgColor ??
+                    Colors.blueGrey[300],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: Icon(
+                      chapter.course?.majorIconData.icon ?? Icons.book,
+                      color:
+                          chapter.course?.majorIconData.color ?? Colors.green,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    chapter.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  LinearProgressIndicator(
+                    value: chapter.progress,
+                    color: Colors.black,
+                    backgroundColor: Colors.grey,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                  const SizedBox(height: 10),
+                  Flexible(
+                      child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Progress",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        "${progressPercent.toStringAsFixed(2)}%",
+                        style: const TextStyle(fontSize: 14),
+                      )
+                    ],
+                  ))
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

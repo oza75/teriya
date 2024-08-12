@@ -27,6 +27,7 @@ class _ShowConversationState extends State<ShowConversation> {
           overflow: TextOverflow.ellipsis,
         ),
       ),
+      backgroundColor: CupertinoColors.white,
       body: SafeArea(
         child: ChatConversation(
           conversationId: widget.conversation.id,

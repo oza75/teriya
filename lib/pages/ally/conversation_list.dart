@@ -45,7 +45,7 @@ class _ConversationListState extends State<ConversationList> {
   }
 
   void _openConversation(Conversation conversation) {
-    Navigator.of(context).push(FadeTransitionPageRoute(builder: (context) {
+    Navigator.of(context).push(customPlatformPageRoute(builder: (context) {
       return ShowConversation(conversation: conversation);
     })).then((_) {
       _fetchConversations();

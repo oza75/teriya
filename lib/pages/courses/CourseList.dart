@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:Teriya/models.dart';
 import 'package:Teriya/pages/courses/ShowCourse.dart';
 import 'package:Teriya/services/course_service.dart';
+import 'package:Teriya/services/socket_service.dart';
 import 'package:Teriya/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../../screens/courses.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class CourseList extends StatefulWidget {
   const CourseList({super.key});
@@ -132,7 +134,7 @@ class _CourseListState extends State<CourseList> {
                   ),
                   onTap: () => Navigator.push(
                     context,
-                    FadeTransitionPageRoute(
+                    customPlatformPageRoute(
                       builder: (context) => ShowCourse(courseId: course.id),
                     ),
                   ),

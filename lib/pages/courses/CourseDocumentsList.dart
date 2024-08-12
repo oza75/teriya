@@ -207,7 +207,11 @@ class _DocumentListingState extends State<DocumentListing> {
                       size: 24,
                       color: Colors.green[500],
                     )
-                  : PlatformCircularProgressIndicator(),
+                  : SizedBox(
+                      width: 25,
+                      height: 25,
+                      child: PlatformCircularProgressIndicator(),
+                    ),
               title: Text(
                 document.name,
                 style: TextStyle(
