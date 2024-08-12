@@ -270,8 +270,8 @@ class _SummaryActivityState extends State<SummaryActivity> {
       final XFile? photo = await picker.pickImage(source: ImageSource.camera);
 
       if (photo != null) {
-        // You can use the path of the photo for further processing
-        print('Photo taken: ${photo.path}');
+       File file = File(photo.path); // Convert XFile to a File
+        _validateSummary(file);
       } else {
         print('No photo captured.');
       }

@@ -64,6 +64,10 @@
     <string>Allow access to the microphone for recording videos.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Allow access to the photo library to select photos of your summaries for upload.</string>
-
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
 </dict>
 </plist>

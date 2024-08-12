@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:provider/provider.dart';
 
@@ -294,7 +295,7 @@ class _ShowChapterState extends State<ShowChapter> {
   }
 }
 
-class ChapterSection extends StatelessWidget {
+class ChapterSection extends StatefulWidget {
   final CourseChapterSection section;
   final CourseChapter chapter;
   final bool disabled;
@@ -311,8 +312,31 @@ class ChapterSection extends StatelessWidget {
   });
 
   @override
+  State<ChapterSection> createState() => _ChapterSectionState();
+}
+
+class _ChapterSectionState extends State<ChapterSection> {
+  final AudioPlayer _player = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.section.audioUrl != null) {
+      setState(() {
+        _player.setUrl(widget.section.audioUrl!);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return disabled ? _buildDisabled() : _buildEnabled(context);
+    return widget.disabled ? _buildDisabled() : _buildEnabled(context);
   }
 
   void onStartQuizz(BuildContext context) {
@@ -323,10 +347,10 @@ class ChapterSection extends StatelessWidget {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.90,
           child: Quizz(
-            questions: section.activity!.questions,
+            questions: widget.section.activity!.questions,
             onFinish: () {
               Navigator.of(context).pop();
-              onNext(context);
+              widget.onNext(context);
             },
           ),
         );
@@ -342,11 +366,11 @@ class ChapterSection extends StatelessWidget {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.90,
           child: SummaryActivity(
-            section: section,
-            chapter: chapter,
+            section: widget.section,
+            chapter: widget.chapter,
             onFinish: () {
               Navigator.of(context).pop();
-              onNext(context);
+              widget.onNext(context);
             },
           ),
         );
@@ -363,8 +387,8 @@ class ChapterSection extends StatelessWidget {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.90,
           child: ExplainSectionWithAlly(
-            section: section,
-            language: chapter.language,
+            section: widget.section,
+            language: widget.chapter.language,
           ),
         );
       },
@@ -375,7 +399,7 @@ class ChapterSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Text(
-        section.title,
+        widget.section.title,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
@@ -393,7 +417,7 @@ class ChapterSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            section.title,
+            widget.section.title,
             style: const TextStyle(
               fontSize: 23,
               height: 1.5,
@@ -402,7 +426,7 @@ class ChapterSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           MarkdownBody(
-            data: section.content,
+            data: widget.section.content,
             styleSheet: MarkdownStyleSheet(
               p: TextStyle(
                 height: 1.5,
@@ -414,21 +438,48 @@ class ChapterSection extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.red[100],
+              if (widget.section.audioUrl != null)
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.red[100],
+                  ),
+                  child: StreamBuilder<PlayerState>(
+                    stream: _player.playerStateStream,
+                    builder: (context, snapshot) {
+                      final playerState = snapshot.data;
+                      final processingState = playerState?.processingState;
+                      final playing = playerState?.playing;
+                      if (processingState == ProcessingState.loading ||
+                          processingState == ProcessingState.buffering) {
+                        return SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: PlatformCircularProgressIndicator(),
+                        );
+                      } else if (playing != true) {
+                        return IconButton(
+                          icon: Icon(Icons.play_arrow, color: Colors.red[800]),
+                          iconSize: 30.0,
+                          onPressed: _player.play,
+                        );
+                      } else if (processingState != ProcessingState.completed) {
+                        return IconButton(
+                          icon: Icon(Icons.pause, color: Colors.red[800]),
+                          iconSize: 30.0,
+                          onPressed: _player.pause,
+                        );
+                      } else {
+                        return IconButton(
+                          icon: Icon(Icons.replay, color: Colors.red[800]),
+                          iconSize: 30.0,
+                          onPressed: () => _player.seek(Duration.zero),
+                        );
+                      }
+                    },
+                  ),
                 ),
-                child: IconButton(
-                  iconSize: 30,
-                  icon: const Icon(CupertinoIcons.play_rectangle_fill),
-                  color: Colors.red[800],
-                  onPressed: () {
-                    // Handle play button press
-                  },
-                ),
-              ),
               const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.all(2),
@@ -443,8 +494,8 @@ class ChapterSection extends StatelessWidget {
                   onPressed: () => _explainWithAlly(context),
                 ),
               ),
-              if (active) const Spacer(),
-              if (active) _buildActionButton(context)
+              if (widget.active) const Spacer(),
+              if (widget.active) _buildActionButton(context)
             ],
           ),
           const SizedBox(height: 40),
@@ -454,9 +505,9 @@ class ChapterSection extends StatelessWidget {
   }
 
   Widget _buildActionButton(BuildContext context) {
-    final activity = section.activity;
+    final activity = widget.section.activity;
     var btnText = "Next";
-    var btnAction = onNext;
+    var btnAction = widget.onNext;
 
     if (activity != null && activity.type == SectionActivityTypes.quizz) {
       btnText = "Quizz";

@@ -210,7 +210,31 @@ class _ShowCourseState extends State<ShowCourse> {
     );
   }
 
+  Widget _buildEmptyState() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Text(
+          "No Chapters Yet !",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          "Add some documents so Ally can generate chapters for you.",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey[600], height: 1.5),
+        )
+      ],
+    );
+  }
+
   Widget _buildCourseContent() {
+    final hasDocuments = (course?.documents ?? []).isNotEmpty;
+    final hasChapters = (course?.chapters ?? []).isNotEmpty;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -225,11 +249,13 @@ class _ShowCourseState extends State<ShowCourse> {
             ).then((_) => _fetchCourse());
           },
         ),
-        if (_isProcessing)
+        if (_isProcessing || (!_isProcessing && hasDocuments && !hasChapters))
           const Padding(
             padding: EdgeInsets.only(top: 90),
             child: ProcessingWidget(),
           )
+        else if (!hasChapters)
+          Flexible(child: _buildEmptyState())
         else
           Expanded(
             child: Column(

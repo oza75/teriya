@@ -294,6 +294,7 @@ class CourseChapterSection {
   final String title;
   final String content;
   final SectionActivity? activity;
+  final String? audioUrl;
   bool passed = false;
 
   CourseChapterSection({
@@ -301,6 +302,7 @@ class CourseChapterSection {
     required this.content,
     required this.passed,
     this.activity,
+    this.audioUrl,
   });
 
   factory CourseChapterSection.fromJson(Map<String, dynamic> json) {
@@ -313,6 +315,7 @@ class CourseChapterSection {
               (json["activity"] as Map<String, dynamic>).isNotEmpty)
           ? SectionActivity.fromJson(json['activity'])
           : null,
+      audioUrl: json.containsKey("audio_url") ? json['audio_url'] : null,
     );
   }
 }

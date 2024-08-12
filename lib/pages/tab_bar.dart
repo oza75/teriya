@@ -4,6 +4,7 @@ import 'package:Teriya/pages/ally/conversation_list.dart';
 import 'package:Teriya/pages/courses/CourseList.dart';
 import 'package:Teriya/pages/home/home.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
@@ -34,9 +35,7 @@ class _TabBarPageState extends State<TabBarPage> {
         AdaptiveBottomNavItem(
           icon: Symbols.neurology,
           label: "Talk with Ally",
-          page: const Center(
-            child: ConversationList(),
-          ),
+          page: const ConversationList(),
         ),
         AdaptiveBottomNavItem(
           icon: Icons.person,

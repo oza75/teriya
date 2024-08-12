@@ -52,7 +52,15 @@ class _AdaptiveBottomNavBarState extends State<AdaptiveBottomNavBar> {
             .toList(),
       ),
       tabBuilder: (context, index) {
-        return CupertinoTabView(builder: (_) => widget.items[index].page);
+        return CupertinoTabView(
+          builder: (_) => index == currentPageIndex
+              ? Padding(
+                  key: UniqueKey(),
+                  padding: EdgeInsets.zero,
+                  child: widget.items[index].page,
+                )
+              : widget.items[index].page,
+        );
       },
     );
   }

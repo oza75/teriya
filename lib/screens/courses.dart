@@ -60,10 +60,9 @@ class _CourseFormState extends State<CourseForm> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      resizeToAvoidBottomInset: true,
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(
+    return PlatformScaffold(
+      appBar: PlatformAppBar(
+        title: Text(
           widget.editing
               ? 'Update ${widget.initialCourseName}'
               : 'Add a New Course',
@@ -71,7 +70,7 @@ class _CourseFormState extends State<CourseForm> {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(top: 20),
           child: ListView(

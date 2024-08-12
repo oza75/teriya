@@ -32,6 +32,7 @@ class _HomeState extends State<Home> {
   }
 
   void _fetchChapters() {
+    print("fetching chapters...");
     setState(() {
       _fetchChaptersFutures = Provider.of<CourseService>(context, listen: false)
           .fetchUserChapters()
