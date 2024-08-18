@@ -12,6 +12,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../services/course_service.dart';
 
@@ -52,6 +53,7 @@ class _HomeState extends State<Home> {
     if (user == null) {
       return const SizedBox.shrink();
     }
+    final time = DateTime.now().hour <= 12 ? "am" : "pm";
 
     return PlatformScaffold(
       backgroundColor: Colors.grey[100]!,
@@ -68,7 +70,8 @@ class _HomeState extends State<Home> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Welcome, ${user.firstName}",
+                AppLocalizations.of(context)!
+                    .home_welcome(time, user.firstName),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -77,9 +80,9 @@ class _HomeState extends State<Home> {
               const SizedBox(height: 20),
               _buildCalendarSection(),
               const SizedBox(height: 30),
-              const Text(
-                "Your progress",
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.home_progress_title,
+                style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 18,
                 ),
@@ -87,9 +90,9 @@ class _HomeState extends State<Home> {
               const SizedBox(height: 16),
               _buildChaptersSection(),
               const SizedBox(height: 30),
-              const Text(
-                "Tests",
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.home_tests_title,
+                style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 18,
                 ),
@@ -116,11 +119,15 @@ class _HomeState extends State<Home> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text("Tests your knowledge with some quizz."),
+          Text(
+            AppLocalizations.of(context)!.home_tests_desc,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 15),
+          ),
           const SizedBox(height: 20),
           CupertinoButton(
             color: Colors.black,
-            child: const Text("Start"),
+            child: Text(AppLocalizations.of(context)!.home_tests_btn),
             onPressed: () {
               Navigator.of(context)
                   .push(customPlatformPageRoute(builder: (context) {
@@ -164,15 +171,17 @@ class _HomeState extends State<Home> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
-            "Add some documents to your courses before.",
+          Text(
+            AppLocalizations.of(context)!.home_progress_no_data_title,
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w500),
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15, height: 1.5),
           ),
           const SizedBox(height: 20),
           CupertinoButton(
               color: Colors.purpleAccent,
-              child: const Text("My courses"),
+              child: Text(
+                AppLocalizations.of(context)!.home_progress_no_data_btn,
+              ),
               onPressed: () {
                 Navigator.of(context)
                     .push(customPlatformPageRoute(
@@ -249,9 +258,10 @@ class _HomeState extends State<Home> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
-                        "Progress",
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!
+                            .home_progress_chapter_progress,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
                         ),
@@ -282,6 +292,7 @@ class _HomeState extends State<Home> {
       ),
       child: TableCalendar(
         calendarFormat: CalendarFormat.week,
+        locale: Localizations.localeOf(context).toString(),
         firstDay: DateTime.utc(2010, 10, 16),
         lastDay: DateTime.utc(2030, 3, 14),
         focusedDay: DateTime.now(),

@@ -2,8 +2,9 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:Teriya/services/auth_service.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../components/image_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +21,9 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    return CupertinoPageScaffold(
+    return PlatformScaffold(
       backgroundColor: CupertinoColors.systemBackground,
-      child: Stack(
+      body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
           const Positioned.fill(
@@ -46,9 +47,9 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'A new way to learn',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.app_description,
+                style: const TextStyle(
                   fontSize: 18,
                   color: CupertinoColors.white,
                 ),
@@ -63,9 +64,9 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
                     // Google logo image,
                     // Google logo image
                     const SizedBox(width: 12),
-                    const Text(
-                      'Sign in with Google',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.oauth_text("Google"),
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 16,
                       ),
@@ -83,8 +84,8 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
               ),
               const SizedBox(height: 20),
               if (Platform.isAndroid)
-                const Text("Register or Login with your Google Account",
-                    style: TextStyle(
+                Text(AppLocalizations.of(context)!.oauth_google_hint,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 14,
                       color: CupertinoColors.extraLightBackgroundGray,
@@ -92,14 +93,15 @@ class TeriyaWelcomeScreenState extends State<TeriyaWelcomeScreen> {
               if (!Platform.isAndroid)
                 CupertinoButton(
                   color: CupertinoColors.black,
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Icon(Icons.apple, size: 24, color: CupertinoColors.white),
-                      SizedBox(width: 12),
+                      const Icon(Icons.apple,
+                          size: 24, color: CupertinoColors.white),
+                      const SizedBox(width: 12),
                       Text(
-                        'Sign in with Apple',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.oauth_text("Apple"),
+                        style: const TextStyle(
                           color: CupertinoColors.white,
                           fontSize: 17,
                         ),

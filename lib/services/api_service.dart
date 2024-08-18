@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:go_router/go_router.dart';
 
 import '../constants.dart';
 
@@ -34,6 +34,11 @@ class ApiService {
         if (_cachedToken != null) {
           options.headers['Authorization'] = "Bearer $_cachedToken";
         }
+
+        // Set the Accept-Language header based on the current locale
+        final locale = WidgetsBinding.instance.platformDispatcher.locale;
+        options.headers['Accept-Language'] = locale.toString();
+
         return handler.next(options);
       },
       onResponse: (response, handler) {

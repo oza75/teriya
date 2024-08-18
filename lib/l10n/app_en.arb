@@ -1,0 +1,89 @@
+{
+  "app_description": "A new way to learn",
+  "oauth_text": "Sign in with {provider}",
+  "@oauth_text": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "oauth_google_hint": "Register or Login with your Google Account",
+  "onboarding_welcome": "Welcome, ",
+  "onboarding_welcome_description": "Click below to meet Ally, your personal guide and study pal.",
+  "onboarding_welcome_meet_ally_btn": "Meet Ally",
+  "create_course_title": "Add a New Course",
+  "update_course_title": "Update {courseName}",
+  "@update_course_title": {
+    "placeholders": {
+      "courseName": {
+        "type": "String"
+      }
+    }
+  },
+  "course_form_course_name": "Course Name",
+  "course_form_course_name_hint": "E.g., BIO 82 – Genetics",
+  "course_form_language": "Course language",
+  "course_form_language_hint": "Select a language",
+  "course_form_major": "Major",
+  "course_form_major_hint": "Select a major",
+  "course_form_documents": "Documents (optional)",
+  "course_form_documents_description": "Upload any relevant materials such as PDFs, videos, or audio files. You can add more anytime.",
+  "course_form_documents_add_desc": "Click here to upload documents.",
+  "course_form_submit_create_btn": "Add Course",
+  "course_form_submit_update_btn": "Update Course",
+  "course_language": "{language, select, french{French} english{English} other{Spanish}}",
+  "@course_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "tab_bar_home": "Home",
+  "tab_bar_courses": "Courses",
+  "tab_bar_ally": "Talk with Ally",
+  "tab_bar_account": "Account",
+  "home_welcome": "{time, select, pm{Welcome, {firstName}} am{Morning, {firstName}} other{Welcome, {firstName}}}",
+  "@home_welcome": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "home_progress_title": "Your Progress",
+  "home_progress_no_data_title": "Add some documents to your courses before.",
+  "home_progress_no_data_btn": "My courses",
+  "home_progress_chapter_progress": "Progress",
+  "home_tests_title": "Tests",
+  "home_tests_desc": "Tests your knowledge with some quizzes.",
+  "home_tests_btn": "Start",
+  "account_title": "Account",
+  "account_details": "Details",
+  "account_user_name": "Name",
+  "account_user_email": "Email",
+  "account_logout_btn": "Logout",
+  "ally_conversations_title": "Conversations",
+  "ally_conversations_no_data_title": "Talk with Ally",
+  "ally_conversations_no_data_desc": "Start a new conversation with Ally and ask anything related to your courses.",
+  "ally_conversations_no_data_btn": "Chat with Ally",
+  "ally_conversations_deletion_confirm_title": "Confirm Deletion",
+  "ally_conversations_deletion_confirm_desc": "Are you sure you want to delete this conversation?",
+  "ally_conversations_deletion_confirm_cancel_btn": "Cancel",
+  "ally_conversations_deletion_confirm_confirm_btn": "Delete",
+  "ally_conversations_deleted_feedback": "Conversation removed !",
+  "ally_conversation_unnamed": "Unnamed Conversation",
+  "ally_conversation_start_date": "Started on {date}",
+  "@ally_conversation_start_date": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ally_new_conversation_title": "New conversation"
+}

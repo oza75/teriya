@@ -122,10 +122,18 @@ class _ChatConversationState extends State<ChatConversation> {
           Navigator.of(context).pop();
         },
       );
-      CupertinoScaffold.showCupertinoModalBottomSheet(
+      showModalBottomSheet(
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+        ),
         context: context,
+        clipBehavior: Clip.antiAlias,
         backgroundColor: Colors.white,
-        builder: (context) => actionWidget,
+        builder: (context) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.93,
+          child: actionWidget,
+        ),
       );
     }
   }
@@ -383,12 +391,13 @@ class _ChatConversationMessageInputState
           children: widget.quickReplies!
               .map((reply) => CupertinoButton(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    color: CupertinoColors.activeBlue,
+                    color: const Color(0XFF10b981),
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
                     child: Text(reply.text,
                         style: const TextStyle(
                           color: CupertinoColors.white,
                           fontWeight: FontWeight.w600,
+                          height: 1.5,
                           fontSize: 15,
                         )),
                     onPressed: () => _handleSubmitted(reply),

@@ -8,6 +8,7 @@ class PlatformDependentPicker extends StatelessWidget {
   final Widget? hint;
   final double? modalHeight;
   final dynamic androidValue;
+  final String Function(dynamic)? itemLabel;
   final Function(dynamic) onSelectedItemChanged;
 
   const PlatformDependentPicker({
@@ -18,6 +19,7 @@ class PlatformDependentPicker extends StatelessWidget {
     required this.onSelectedItemChanged,
     this.modalHeight = 250,
     this.hint,
+    this.itemLabel,
   });
 
   @override
@@ -44,7 +46,10 @@ class PlatformDependentPicker extends StatelessWidget {
                 backgroundColor: Colors.white,
                 scrollController: FixedExtentScrollController(initialItem: 0),
                 onSelectedItemChanged: onSelectedItemChanged,
-                children: items.map((item) => Text(item)).toList(),
+                children: items
+                    .map((item) =>
+                        Text(itemLabel != null ? itemLabel!(item) : item))
+                    .toList(),
               )),
         ),
       ),
@@ -76,7 +81,7 @@ class PlatformDependentPicker extends StatelessWidget {
             return DropdownMenuItem<String>(
               value: value,
               child: Text(
-                value,
+                itemLabel != null ? itemLabel!(value) : value,
                 style: TextStyle(
                   color: isDarkTheme ? Colors.white60 : Colors.black54,
                 ),

@@ -1,0 +1,89 @@
+{
+  "app_description": "Une nouvelle façon d'apprendre",
+  "oauth_text": "Continuer avec {provider}",
+  "@oauth_text": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "oauth_google_hint": "Inscrivez-vous ou connectez-vous avec votre compte Google",
+  "onboarding_welcome": "Bienvenue, ",
+  "onboarding_welcome_description": "Faites connaissance avec Ally, votre assistant personnel d'étude.",
+  "onboarding_welcome_meet_ally_btn": "Parler à Ally",
+  "create_course_title": "Ajouter un cours",
+  "update_course_title": "Modifier {courseName}",
+  "@update_course_title": {
+    "placeholders": {
+      "courseName": {
+        "type": "String"
+      }
+    }
+  },
+  "course_form_course_name": "Nom du cours",
+  "course_form_course_name_hint": "Exemple : BIO 82 – Génétique",
+  "course_form_language": "Langue du cours",
+  "course_form_language_hint": "Sélectionnez une langue",
+  "course_form_major": "Discipline principale",
+  "course_form_major_hint": "Sélectionnez une discipline",
+  "course_form_documents": "Documents (facultatif)",
+  "course_form_documents_description": "Téléchargez des documents du cours comme des PDF, des vidéos ou des fichiers audio. Vous pouvez en ajouter plus tard.",
+  "course_form_documents_add_desc": "Cliquez ici pour télécharger des documents.",
+  "course_form_submit_create_btn": "Ajouter un cours",
+  "course_form_submit_update_btn": "Mettre à jour le cours",
+  "course_language": "{language, select, french{Français} english{Anglais} other{Espagnol}}",
+  "@course_language": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "tab_bar_home": "Accueil",
+  "tab_bar_courses": "Mes Cours",
+  "tab_bar_ally": "Parler avec Ally",
+  "tab_bar_account": "Mon Compte",
+  "home_welcome": "{time, select, pm{Bonsoir, {firstName}} am{Bonjour, {firstName}} other{Bienvenue, {firstName}}}",
+  "@home_welcome": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "firstName": {
+        "type": "String"
+      }
+    }
+  },
+  "home_progress_title": "Votre progression",
+  "home_progress_no_data_title": "Ajoutez des documents à vos cours pour commencer.",
+  "home_progress_no_data_btn": "Mes cours",
+  "home_progress_chapter_progress": "Progression",
+  "home_tests_title": "Tests",
+  "home_tests_desc": "Testez vos connaissances avec quelques quiz.",
+  "home_tests_btn": "Commencer",
+  "account_title": "Mon Compte",
+  "account_details": "Détails",
+  "account_user_name": "Nom",
+  "account_user_email": "Email",
+  "account_logout_btn": "Déconnexion",
+  "ally_conversations_title": "Conversations",
+  "ally_conversations_no_data_title": "Parlez avec Ally",
+  "ally_conversations_no_data_desc": "Commencez une nouvelle conversation avec Ally et posez-lui toutes vos questions liées à vos cours.",
+  "ally_conversations_no_data_btn": "Discuter avec Ally",
+  "ally_conversations_deletion_confirm_title": "Confirmer la suppression",
+  "ally_conversations_deletion_confirm_desc": "Êtes-vous sûr de vouloir supprimer cette conversation ?",
+  "ally_conversations_deletion_confirm_cancel_btn": "Annuler",
+  "ally_conversations_deletion_confirm_confirm_btn": "Supprimer",
+  "ally_conversations_deleted_feedback": "Conversation supprimée !",
+  "ally_conversation_unnamed": "Conversation sans nom",
+  "ally_conversation_start_date": "Commencée le {date}",
+  "@ally_conversation_start_date": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ally_new_conversation_title": "Nouvelle conversation"
+}

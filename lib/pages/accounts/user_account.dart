@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class UserAccount extends StatelessWidget {
   const UserAccount({super.key});
@@ -19,20 +20,20 @@ class UserAccount extends StatelessWidget {
 
     return PlatformScaffold(
       appBar: PlatformAppBar(
-        title: const Text("Account"),
+        title: Text(AppLocalizations.of(context)!.account_title),
       ),
       body: SafeArea(
         child: Material(
           color: platformScaffoldBackgroundColor(context),
           child: ListView(
             children: [
-              _buildSectionHeader('Details'),
-              _buildListTile('Name', user.fullName),
-              _buildListTile('Email', user.email),
+              _buildSectionHeader(AppLocalizations.of(context)!.account_details),
+              _buildListTile(AppLocalizations.of(context)!.account_user_name, user.fullName),
+              _buildListTile(AppLocalizations.of(context)!.account_user_email, user.email),
               ListTile(
-                title: const Text(
-                  'Logout',
-                  style: TextStyle(
+                title: Text(
+                  AppLocalizations.of(context)!.account_logout_btn,
+                  style: const TextStyle(
                     color: Colors.red,
                     fontWeight: FontWeight.w500,
                   ),

@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TabBarPage extends StatefulWidget {
   const TabBarPage({super.key});
@@ -24,22 +25,22 @@ class _TabBarPageState extends State<TabBarPage> {
       child: AdaptiveBottomNavBar(items: [
         AdaptiveBottomNavItem(
           icon: Icons.home,
-          label: "Home",
+          label: AppLocalizations.of(context)!.tab_bar_home,
           page: const Home(),
         ),
         AdaptiveBottomNavItem(
           icon: CupertinoIcons.book,
-          label: "Courses",
+          label: AppLocalizations.of(context)!.tab_bar_courses,
           page: const CourseList(),
         ),
         AdaptiveBottomNavItem(
           icon: Symbols.neurology,
-          label: "Talk with Ally",
+          label: AppLocalizations.of(context)!.tab_bar_ally,
           page: const ConversationList(),
         ),
         AdaptiveBottomNavItem(
           icon: Icons.person,
-          label: "Account",
+          label: AppLocalizations.of(context)!.tab_bar_account,
           page: const UserAccount(),
         ),
       ]),

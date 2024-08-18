@@ -2,7 +2,7 @@ import 'package:Teriya/services/course_service.dart';
 import 'package:Teriya/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +40,7 @@ class TeriyaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print("building teriya app!");
+    print("Locale: ${WidgetsBinding.instance.platformDispatcher.locale}");
     return PlatformApp.router(
       routerConfig: appRouter.router,
       title: "Teriya",
@@ -50,11 +51,8 @@ class TeriyaApp extends StatelessWidget {
         theme: const CupertinoThemeData(brightness: Brightness.light),
       ),
       debugShowCheckedModeBanner: false,
-      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-        DefaultMaterialLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate,
-        DefaultWidgetsLocalizations.delegate,
-      ],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }

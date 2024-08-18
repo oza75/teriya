@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../components/chat_conversation.dart';
 import '../../models.dart';
@@ -22,7 +23,7 @@ class _ShowConversationState extends State<ShowConversation> {
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: Text(
-          widget.conversation.title ?? "New Conversation",
+          widget.conversation.title ?? AppLocalizations.of(context)!.ally_new_conversation_title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

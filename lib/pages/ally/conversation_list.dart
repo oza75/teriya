@@ -11,7 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models.dart';
 
 class ConversationList extends StatefulWidget {
@@ -71,20 +71,30 @@ class _ConversationListState extends State<ConversationList> {
           context: context,
           builder: (BuildContext context) {
             return PlatformAlertDialog(
-              title: const Text('Confirm Deletion'),
-              content: const Text(
-                'Are you sure you want to delete this conversation?',
+              title: Text(
+                AppLocalizations.of(context)!
+                    .ally_conversations_deletion_confirm_title,
+              ),
+              content: Text(
+                AppLocalizations.of(context)!
+                    .ally_conversations_deletion_confirm_desc,
               ),
               actions: <Widget>[
                 PlatformDialogAction(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .ally_conversations_deletion_confirm_cancel_btn,
+                  ),
                 ),
                 PlatformDialogAction(
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
-                  child: const Text('Delete'),
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .ally_conversations_deletion_confirm_confirm_btn,
+                  ),
                 ),
               ],
             );
@@ -100,10 +110,10 @@ class _ConversationListState extends State<ConversationList> {
       _fetchConversations();
       showSnackbar(
         context,
-        const Text(
-          "Conversation removed !",
+        Text(
+          AppLocalizations.of(context)!.ally_conversations_deleted_feedback,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             color: Color(0xFF3b82f6),
             fontWeight: FontWeight.w600,
@@ -117,7 +127,7 @@ class _ConversationListState extends State<ConversationList> {
   Widget build(BuildContext context) {
     return PlatformScaffold(
       appBar: PlatformAppBar(
-        title: const Text("Conversations"),
+        title: Text(AppLocalizations.of(context)!.ally_conversations_title),
         trailingActions: Platform.isIOS
             ? [
                 CupertinoButton(
@@ -182,7 +192,9 @@ class _ConversationListState extends State<ConversationList> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      conversation.title ?? "Unnamed Conversation",
+                      conversation.title ??
+                          AppLocalizations.of(context)!
+                              .ally_conversation_unnamed,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -193,7 +205,10 @@ class _ConversationListState extends State<ConversationList> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "Started on ${conversation.createdAt.day}/${conversation.createdAt.month}/${conversation.createdAt.year}",
+                      AppLocalizations.of(context)!
+                          .ally_conversation_start_date(
+                        "${conversation.createdAt.day}/${conversation.createdAt.month}/${conversation.createdAt.year}",
+                      ),
                       style: TextStyle(
                         color: Colors.grey[500],
                         fontSize: 15,
@@ -229,17 +244,17 @@ class _ConversationListState extends State<ConversationList> {
             width: 150,
             height: 150,
           ),
-          const Text(
-            "Talk with Ally",
+          Text(
+            AppLocalizations.of(context)!.ally_conversations_no_data_title,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            "Start a new conversation with Ally and ask anything related to your courses.",
+            AppLocalizations.of(context)!.ally_conversations_no_data_desc,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.grey[600],
@@ -253,7 +268,10 @@ class _ConversationListState extends State<ConversationList> {
             onPressed: _talkWithAlly,
             child: _creatingConversation
                 ? PlatformCircularProgressIndicator()
-                : const Text("Chat with Ally"),
+                : Text(
+                    AppLocalizations.of(context)!
+                        .ally_conversations_no_data_btn,
+                  ),
           )
         ],
       ),

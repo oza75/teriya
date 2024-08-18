@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import '../components/select_picker.dart';
 import '../models.dart';
 import '../services/course_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CourseForm extends StatefulWidget {
   final String? initialCourseName;
@@ -40,7 +41,7 @@ class CourseForm extends StatefulWidget {
 class _CourseFormState extends State<CourseForm> {
   late TextEditingController _courseNameController;
   late final Future<List<String>> majorsFuture;
-  final List<String> supportedLanguages = ['French', 'English'];
+  final List<String> supportedLanguages = ['french', 'english'];
   String? _selectedMajor;
   String? _language;
   List<File> documents = [];
@@ -64,12 +65,14 @@ class _CourseFormState extends State<CourseForm> {
       appBar: PlatformAppBar(
         title: Text(
           widget.editing
-              ? 'Update ${widget.initialCourseName}'
-              : 'Add a New Course',
+              ? AppLocalizations.of(context)!
+                  .update_course_title(widget.initialCourseName!)
+              : AppLocalizations.of(context)!.create_course_title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
       ),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(top: 20),
@@ -98,7 +101,7 @@ class _CourseFormState extends State<CourseForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Course Name",
+            AppLocalizations.of(context)!.course_form_course_name,
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: isDarkTheme ? Colors.white : Colors.black,
@@ -107,7 +110,8 @@ class _CourseFormState extends State<CourseForm> {
           const SizedBox(height: 10),
           CupertinoTextField(
             controller: _courseNameController,
-            placeholder: 'E.g., BIO 82 – Genetics',
+            placeholder:
+                AppLocalizations.of(context)!.course_form_course_name_hint,
             padding: const EdgeInsets.all(12),
             clearButtonMode: OverlayVisibilityMode.editing,
             decoration: BoxDecoration(
@@ -121,6 +125,7 @@ class _CourseFormState extends State<CourseForm> {
   }
 
   Widget _buildCourseLanguageSelector() {
+    print("Language: $_language");
     final isDarkTheme = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -128,7 +133,7 @@ class _CourseFormState extends State<CourseForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Course language",
+            AppLocalizations.of(context)!.course_form_language,
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: isDarkTheme ? Colors.white : Colors.black,
@@ -137,8 +142,11 @@ class _CourseFormState extends State<CourseForm> {
           const SizedBox(height: 10),
           PlatformDependentPicker(
             items: supportedLanguages,
+            itemLabel: (item) {
+              return AppLocalizations.of(context)!.course_language(item);
+            },
             hint: Text(
-              "Select a language",
+              AppLocalizations.of(context)!.course_form_language_hint,
               style: TextStyle(
                 color: isDarkTheme ? Colors.white60 : Colors.black54,
               ),
@@ -149,7 +157,9 @@ class _CourseFormState extends State<CourseForm> {
               setState(() => _language = item);
             },
             iosSelectedItem: Text(
-              _language ?? "Choose a language",
+              _language != null
+                  ? AppLocalizations.of(context)!.course_language(_language!)
+                  : AppLocalizations.of(context)!.course_form_language_hint,
               style: TextStyle(
                 color: isDarkTheme ? Colors.grey[300] : Colors.grey[600],
               ),
@@ -168,7 +178,7 @@ class _CourseFormState extends State<CourseForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Major",
+            AppLocalizations.of(context)!.course_form_major,
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: isDarkTheme ? Colors.white : Colors.black,
@@ -187,7 +197,7 @@ class _CourseFormState extends State<CourseForm> {
                   return PlatformDependentPicker(
                     items: majors,
                     hint: Text(
-                      "Select a major",
+                      AppLocalizations.of(context)!.course_form_major_hint,
                       style: TextStyle(
                         color: isDarkTheme ? Colors.white60 : Colors.black54,
                       ),
@@ -198,7 +208,8 @@ class _CourseFormState extends State<CourseForm> {
                       setState(() => _selectedMajor = item);
                     },
                     iosSelectedItem: Text(
-                      _selectedMajor ?? "Choose a Major",
+                      _selectedMajor ??
+                          AppLocalizations.of(context)!.course_form_major_hint,
                       style: TextStyle(
                         color:
                             isDarkTheme ? Colors.grey[300] : Colors.grey[600],
@@ -219,14 +230,14 @@ class _CourseFormState extends State<CourseForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Documents (optional)',
+          Text(AppLocalizations.of(context)!.course_form_documents,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: isDarkTheme ? Colors.white : Colors.black,
               )),
           const SizedBox(height: 8),
           Text(
-            'Upload any relevant materials such as PDFs, videos, or audio files. You can add more anytime.',
+            AppLocalizations.of(context)!.course_form_documents_description,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
@@ -335,7 +346,7 @@ class _CourseFormState extends State<CourseForm> {
               ),
               const SizedBox(height: 8),
               Text(
-                "Click here to upload documents.",
+                AppLocalizations.of(context)!.course_form_documents_add_desc,
                 style: TextStyle(
                   color: isDarkTheme ? Colors.grey[100] : Colors.grey[600],
                 ),
@@ -373,7 +384,11 @@ class _CourseFormState extends State<CourseForm> {
         child: _submitting
             ? const CupertinoActivityIndicator(color: Colors.white)
             : Text(
-                widget.editing ? "Update Course" : 'Add Course',
+                widget.editing
+                    ? AppLocalizations.of(context)!
+                        .course_form_submit_update_btn
+                    : AppLocalizations.of(context)!
+                        .course_form_submit_create_btn,
                 style: TextStyle(
                   color: isValid ? Colors.white : Colors.grey[500],
                 ),

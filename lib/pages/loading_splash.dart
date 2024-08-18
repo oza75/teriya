@@ -1,6 +1,7 @@
 import 'package:Teriya/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -74,8 +75,8 @@ class LoadingSplashScreenState extends State<LoadingSplashScreen>
     Color textColor = CupertinoTheme.brightnessOf(context) == Brightness.light
         ? const Color.fromRGBO(30, 58, 138, 1)
         : CupertinoColors.white;
-    return CupertinoPageScaffold(
-        child: Center(
+    return PlatformScaffold(
+        body: Center(
       child: FadeTransition(
         opacity: _opacity!,
         child: Column(
