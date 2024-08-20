@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 
 import '../../screens/courses.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CourseList extends StatefulWidget {
   const CourseList({super.key});
@@ -39,6 +40,12 @@ class _CourseListState extends State<CourseList> {
   void _showAddCourseModal(BuildContext context) {
     showModalBottomSheet(
       isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(10),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
       context: context,
       builder: (context) => SizedBox(
         height: MediaQuery.of(context).size.height * 0.90,
@@ -57,7 +64,7 @@ class _CourseListState extends State<CourseList> {
     return PlatformScaffold(
       key: UniqueKey(),
       appBar: PlatformAppBar(
-        title: const Text("My courses"),
+        title: Text(AppLocalizations.of(context)!.courses_title),
         trailingActions: Platform.isIOS
             ? [
                 CupertinoButton(

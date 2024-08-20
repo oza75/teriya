@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../components/feedback.dart';
 import '../../models.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ShowCourse extends StatefulWidget {
   final int courseId;
@@ -30,6 +31,13 @@ class ShowCourse extends StatefulWidget {
 
 class _ShowCourseState extends State<ShowCourse> {
   late Future<Course> fetchCourseFuture;
+  final List<String> fetchCourseEvents = [
+    'processing-documents.end',
+    'processing-documents.finished-one',
+    'processing-documents.error-removed',
+    'chapters.generated'
+  ];
+
   Course? course;
   bool _isLoading = true;
   bool _hasErrors = false;
@@ -84,15 +92,10 @@ class _ShowCourseState extends State<ShowCourse> {
 
   void _listenRealtimeEvents() async {
     var eventPrefix = "users.${user.id}.courses.${widget.courseId}";
-    socket.on(
-      "$eventPrefix.processing-documents.end",
-      (_) => _fetchCourse(),
-    );
 
-    socket.on(
-      "$eventPrefix.processing-documents.finished-one",
-      (_) => _fetchCourse(),
-    );
+    for (var event in fetchCourseEvents) {
+      socket.on("$eventPrefix.$event", (_) => _fetchCourse());
+    }
 
     socket.on(
       "$eventPrefix.processing-documents.error",
@@ -101,25 +104,16 @@ class _ShowCourseState extends State<ShowCourse> {
         const Text("Error while processing one document..."),
       ),
     );
-
-    socket.on(
-      "$eventPrefix.processing-documents.error-removed",
-      (_) => _fetchCourse(),
-    );
-
-    socket.on(
-      "$eventPrefix.chapters.generated",
-      (_) => _fetchCourse(),
-    );
   }
 
   void _unsubscribeRealtimeEvents() {
     var eventPrefix = "users.${user.id}.courses.${widget.courseId}";
-    socket.off("$eventPrefix.processing-documents.end");
-    socket.off("$eventPrefix.processing-documents.finished-one");
+
+    for (var event in fetchCourseEvents) {
+      socket.off("$eventPrefix.$event");
+    }
+
     socket.off("$eventPrefix.processing-documents.error");
-    socket.off("$eventPrefix.processing-documents.error-removed");
-    socket.off("$eventPrefix.chapters.generated");
   }
 
   void _reGenerateChapters() {
@@ -140,7 +134,7 @@ class _ShowCourseState extends State<ShowCourse> {
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: Text(
-          course?.name ?? "Course",
+          course?.name ?? AppLocalizations.of(context)!.course_title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -192,13 +186,15 @@ class _ShowCourseState extends State<ShowCourse> {
           ),
           const SizedBox(height: 10),
           Text(
-            "We got an error while fetching the course.",
+            AppLocalizations.of(context)!.course_fetch_error_desc,
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey[500], height: 1.5),
           ),
           const SizedBox(height: 20),
           CupertinoButton(
-              child: const Text("Try again !"),
+              child: Text(
+                AppLocalizations.of(context)!.course_fetch_try_again_btn,
+              ),
               onPressed: () {
                 setState(() {
                   _isLoading = true;
@@ -211,24 +207,57 @@ class _ShowCourseState extends State<ShowCourse> {
   }
 
   Widget _buildEmptyState() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Text(
-          "No Chapters Yet !",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+    return SingleChildScrollView(
+      child : Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          // mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 60),
+            Image.asset(
+              "assets/images/illustrations/empty_documents.png",
+              height: 150,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              AppLocalizations.of(context)!.course_no_chapters_title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              AppLocalizations.of(context)!.course_no_chapters_desc,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600], height: 1.5),
+            ),
+            const SizedBox(height: 30),
+            CupertinoButton(
+              color: CupertinoColors.activeBlue,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(CupertinoIcons.add),
+                  const SizedBox(width: 12),
+                  Text(
+                    AppLocalizations.of(context)!.course_no_chapters_add_btn,
+                  ),
+                ],
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  customPlatformPageRoute(
+                    builder: (context) => CourseDocumentList(course: course!),
+                  ),
+                ).then((_) => _fetchCourse());
+              },
+            )
+          ],
         ),
-        const SizedBox(height: 20),
-        Text(
-          "Add some documents so Ally can generate chapters for you.",
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey[600], height: 1.5),
-        )
-      ],
+      ),
     );
   }
 
@@ -269,9 +298,9 @@ class _ShowCourseState extends State<ShowCourse> {
                   ),
                   child: Row(
                     children: [
-                      const Text(
-                        "Chapters",
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.course_chapters_title,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 20,
                         ),
@@ -350,8 +379,8 @@ class DocumentsCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Documents",
+                  Text(
+                    AppLocalizations.of(context)!.course_documents_title,
                     style: const TextStyle(
                       color: CupertinoColors.black,
                       fontWeight: FontWeight.w600,
@@ -362,8 +391,14 @@ class DocumentsCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     processing.isNotEmpty
-                        ? "Processing ${processing.length} documents..."
-                        : "${documents.length} active documents",
+                        ? AppLocalizations.of(context)!
+                            .course_documents_processing_title(
+                            processing.length,
+                          )
+                        : AppLocalizations.of(context)!
+                            .course_documents_processing_active_desc(
+                            documents.length,
+                          ),
                   )
                 ],
               ),
@@ -398,19 +433,20 @@ class ProcessingWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildLoadingAnimation(),
-          const Text(
-            "Processing...",
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.course_processing_title,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: CupertinoColors.black,
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            "Please wait while we are processing your files.",
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.course_processing_desc,
+            style: const TextStyle(
               fontSize: 16,
+              height: 1.5,
               color: CupertinoColors.inactiveGray,
             ),
             textAlign: TextAlign.center,
@@ -451,19 +487,30 @@ class _ChapterListingState extends State<ChapterListing> {
           context: context,
           builder: (BuildContext context) {
             return PlatformAlertDialog(
-              title: const Text('Confirm Deletion'),
-              content:
-                  const Text('Are you sure you want to delete this chapter?'),
+              title: Text(
+                AppLocalizations.of(context)!
+                    .course_chapters_deletion_confirm_title,
+              ),
+              content: Text(
+                AppLocalizations.of(context)!
+                    .course_chapters_deletion_confirm_desc,
+              ),
               actions: <Widget>[
                 PlatformDialogAction(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .course_chapters_deletion_cancel_btn,
+                  ),
                 ),
                 PlatformDialogAction(
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
-                  child: const Text('Delete'),
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .course_chapters_deletion_confirm_btn,
+                  ),
                 ),
               ],
             );
@@ -479,10 +526,10 @@ class _ChapterListingState extends State<ChapterListing> {
       widget.onRemove(chapter);
       showSnackbar(
         context,
-        const Text(
-          "Chapter removed !",
+        Text(
+          AppLocalizations.of(context)!.course_chapters_deleted_feedback,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             color: Color(0xFF3b82f6),
             fontWeight: FontWeight.w600,

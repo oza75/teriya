@@ -9,6 +9,8 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../../models.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CourseDocumentList extends StatefulWidget {
   final Course course;
@@ -43,12 +45,22 @@ class _CourseDocumentListState extends State<CourseDocumentList> {
 
     if (result != null) {
       var files = result.paths.map((path) => File(path!)).toList();
-      showSnackbar(context, Text("Adding ${files.length} documents..."));
+      showSnackbar(
+        context,
+        Text(AppLocalizations.of(context)!
+            .course_documents_list_adding_feedback(files.length)),
+      );
 
       Provider.of<CourseService>(context, listen: false)
           .addCourseDocument(widget.course.id, files)
           .then((res) {
-        showSnackbar(context, Text("${files.length} documents added !"));
+        showSnackbar(
+          context,
+          Text(
+            AppLocalizations.of(context)!
+                .course_documents_list_added_feedback(files.length),
+          ),
+        );
         _fetchDocuments();
       });
     }
@@ -73,29 +85,84 @@ class _CourseDocumentListState extends State<CourseDocumentList> {
               ]
             : [],
       ),
-      body: FutureBuilder(
-        future: _documentsFutures,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: PlatformCircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            var documents = snapshot.data!;
-            return DocumentListing(
-              documents: documents,
-              onRemove: (doc) {
-                _fetchDocuments();
-              },
-            );
-          }
-        },
+      body: SafeArea(
+        child: FutureBuilder(
+          future: _documentsFutures,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: PlatformCircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              var documents = snapshot.data!;
+              return documents.length == 0
+                  ? _buildEmptyState()
+                  : DocumentListing(
+                      documents: documents,
+                      onRemove: (doc) {
+                        _fetchDocuments();
+                      },
+                    );
+            }
+          },
+        ),
       ),
       material: (context, pl) => MaterialScaffoldData(
           floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddDocumentModal(context),
         child: const Icon(Icons.add),
       )),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 60),
+            Image.asset(
+              "assets/images/illustrations/add_documents.png",
+              height: 150,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              AppLocalizations.of(context)!.course_documents_list_no_data_title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              AppLocalizations.of(context)!.course_documents_list_no_data_desc,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                height: 1.5,
+                color: Colors.grey[500],
+              ),
+            ),
+            if (Platform.isIOS) const SizedBox(height: 20),
+            if (Platform.isIOS)
+              CupertinoButton(
+                color: CupertinoColors.activeBlue,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(CupertinoIcons.up_arrow),
+                    const SizedBox(width: 16),
+                    Text(
+                      AppLocalizations.of(context)!
+                          .course_documents_list_no_data_upload_btn,
+                      style: const TextStyle(fontSize: 15),
+                    )
+                  ],
+                ),
+                onPressed: () => _showAddDocumentModal(context),
+              )
+          ],
+        ),
+      ),
     );
   }
 }
@@ -120,19 +187,30 @@ class _DocumentListingState extends State<DocumentListing> {
           context: context,
           builder: (BuildContext context) {
             return PlatformAlertDialog(
-              title: const Text('Confirm Deletion'),
-              content:
-                  const Text('Are you sure you want to delete this document?'),
+              title: Text(
+                AppLocalizations.of(context)!
+                    .course_document_deletion_confirm_title,
+              ),
+              content: Text(
+                AppLocalizations.of(context)!
+                    .course_document_deletion_confirm_desc,
+              ),
               actions: <Widget>[
                 PlatformDialogAction(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .course_document_deletion_cancel_btn,
+                  ),
                 ),
                 PlatformDialogAction(
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
-                  child: const Text('Delete'),
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .course_document_deletion_confirm_btn,
+                  ),
                 ),
               ],
             );
@@ -148,10 +226,10 @@ class _DocumentListingState extends State<DocumentListing> {
       widget.onRemove(document);
       showSnackbar(
         context,
-        const Text(
-          "Document removed !",
+        Text(
+          AppLocalizations.of(context)!.course_document_deleted_feedback,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             color: Color(0xFF3b82f6),
             fontWeight: FontWeight.w600,
@@ -221,7 +299,11 @@ class _DocumentListingState extends State<DocumentListing> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              subtitle: Text(document.processed ? "Active" : "Processing..."),
+              subtitle: Text(
+                document.processed
+                    ? AppLocalizations.of(context)!.course_document_active
+                    : AppLocalizations.of(context)!.course_document_processing,
+              ),
             ),
           );
         },

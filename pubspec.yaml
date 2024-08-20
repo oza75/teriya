@@ -86,6 +86,7 @@ flutter:
     - assets/images/onboarding/
     - assets/images/icons/
     - assets/images/logos/
+    - assets/images/illustrations/
     - assets/animations/
 
   # An image asset can refer to one or more resolution-specific "variants", see

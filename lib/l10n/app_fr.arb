@@ -85,5 +85,68 @@
       }
     }
   },
-  "ally_new_conversation_title": "Nouvelle conversation"
+  "ally_new_conversation_title": "Nouvelle conversation",
+  "courses_title": "Mes cours",
+  "course_title": "Cours",
+  "course_fetch_error_desc": "Une erreur s'est produite lors de la récupération du cours.",
+  "course_fetch_try_again_btn": "Réessayer !",
+  "course_no_chapters_title": "Aucun chapitre pour le moment !",
+  "course_no_chapters_desc": "Ajoutez des documents pour qu'Ally puisse générer des chapitres pour vous.",
+  "course_no_chapters_add_btn": "Ajouter des documents",
+  "course_chapters_title": "Chapitres",
+  "course_documents_title": "Documents",
+  "course_documents_processing_title": "{count, plural, =1{Traitement de 1 document...} other{Traitement de {count} documents...}}",
+  "@course_documents_processing_title": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_documents_processing_active_desc": "{count, plural, =0{Aucun document actif} =1{1 document en actif} other{{count} documents actifs}}",
+  "@course_documents_processing_active_desc": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_processing_title": "Traitement...",
+  "course_processing_desc": "Veuillez patienter pendant que nous traitons vos fichiers.",
+  "course_documents_processing_error_feedback": "Erreur lors du traitement d'un document...",
+  "course_chapters_deletion_confirm_title": "Confirmer la suppression",
+  "course_chapters_deletion_confirm_desc": "Êtes-vous sûr de vouloir supprimer ce chapitre ?",
+  "course_chapters_deletion_cancel_btn": "Annuler",
+  "course_chapters_deletion_confirm_btn": "Supprimer",
+  "course_chapters_deleted_feedback": "Chapitre supprimé !",
+  "course_documents_list_adding_feedback": "{count, plural, =1{Ajout de 1 document...} other{Ajout de {count} documents...}}",
+  "@course_documents_list_adding_feedback": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_documents_list_added_feedback": "{count, plural, =1{1 document ajouté !} other{{count} documents ajoutés !}}",
+  "@course_documents_list_added_feedback": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_documents_list_no_data_title": "Aucun document",
+  "course_documents_list_no_data_desc": "Cliquez ci-dessous pour télécharger des documents pour ce cours",
+  "course_documents_list_no_data_upload_btn": "Télécharger des documents",
+  "course_document_deletion_confirm_title": "Confirmer la suppression",
+  "course_document_deletion_confirm_desc": "Êtes-vous sûr de vouloir supprimer ce document ?",
+  "course_document_deletion_cancel_btn": "Annuler",
+  "course_document_deletion_confirm_btn": "Supprimer",
+  "course_document_deleted_feedback": "Document supprimé !",
+  "course_document_active": "Actif",
+  "course_document_processing": "Traitement en cours..."
 }

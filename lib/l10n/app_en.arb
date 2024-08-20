@@ -85,5 +85,68 @@
       }
     }
   },
-  "ally_new_conversation_title": "New conversation"
+  "ally_new_conversation_title": "New conversation",
+  "courses_title": "My courses",
+  "course_title": "Course",
+  "course_fetch_error_desc": "We got an error while fetching the course.",
+  "course_fetch_try_again_btn": "Try again !",
+  "course_no_chapters_title": "No Chapters Yet !",
+  "course_no_chapters_desc": "Add some documents so Ally can generate chapters for you.",
+  "course_no_chapters_add_btn": "Add documents",
+  "course_chapters_title": "Chapters",
+  "course_documents_title": "Documents",
+  "course_documents_processing_title": "{count, plural, =1{Processing 1 document...} other{Processing {count} documents...}}",
+  "@course_documents_processing_title": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_documents_processing_active_desc": "{count, plural, =0{no active documents} =1{1 active document} other{{count} active documents}}",
+  "@course_documents_processing_active_desc": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_processing_title": "Processing...",
+  "course_processing_desc": "Please wait while we are processing your files.",
+  "course_documents_processing_error_feedback": "Error while processing one document...",
+  "course_chapters_deletion_confirm_title": "Confirm Deletion",
+  "course_chapters_deletion_confirm_desc": "Are you sure you want to delete this chapter?",
+  "course_chapters_deletion_cancel_btn": "Cancel",
+  "course_chapters_deletion_confirm_btn": "Delete",
+  "course_chapters_deleted_feedback": "Chapter removed !",
+  "course_documents_list_adding_feedback": "{count, plural, =1{Adding 1 document...} other{Adding {count} documents...}}",
+  "@course_documents_list_adding_feedback": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_documents_list_added_feedback": "{count, plural, =1{1 document added !} other{{count} documents added !}}",
+  "@course_documents_list_added_feedback": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_documents_list_no_data_title": "No documents",
+  "course_documents_list_no_data_desc": "Click below to upload documents for this course",
+  "course_documents_list_no_data_upload_btn": "Upload documents",
+  "course_document_deletion_confirm_title": "Confirm Deletion",
+  "course_document_deletion_confirm_desc": "Are you sure you want to delete this document?",
+  "course_document_deletion_cancel_btn": "Cancel",
+  "course_document_deletion_confirm_btn": "Delete",
+  "course_document_deleted_feedback": "Document removed !",
+  "course_document_active": "Active",
+  "course_document_processing": "Processing..."
 }
