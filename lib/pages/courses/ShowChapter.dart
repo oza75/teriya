@@ -15,6 +15,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../models.dart';
 import '../../services/course_service.dart';
@@ -233,9 +234,10 @@ class _ShowChapterState extends State<ShowChapter> {
                               children: [
                                 const Icon(Symbols.article),
                                 const SizedBox(width: 10),
-                                Text(
-                                  "${widget.chapter.documents.length} documents",
-                                )
+                                Text(AppLocalizations.of(context)!
+                                    .course_chapter_nb_documents(
+                                  widget.chapter.documents.length,
+                                ))
                               ],
                             ),
                             onPressed: () {
@@ -265,7 +267,10 @@ class _ShowChapterState extends State<ShowChapter> {
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
-                                  "${sections.length} sections",
+                                  AppLocalizations.of(context)!
+                                      .course_chapter_nb_sections(
+                                    sections.length,
+                                  ),
                                   style: TextStyle(color: Colors.grey[700]),
                                 ),
                                 CupertinoButton(
@@ -341,6 +346,12 @@ class _ChapterSectionState extends State<ChapterSection> {
 
   void onStartQuizz(BuildContext context) {
     showModalBottomSheet(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(10),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
       isScrollControlled: true,
       context: context,
       builder: (content) {
@@ -360,6 +371,12 @@ class _ChapterSectionState extends State<ChapterSection> {
 
   void onStartSummary(BuildContext context) {
     showModalBottomSheet(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(10),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
       isScrollControlled: true,
       context: context,
       builder: (context) {
@@ -374,13 +391,18 @@ class _ChapterSectionState extends State<ChapterSection> {
             },
           ),
         );
-        return const Center(child: Text("Hello summary"));
       },
     );
   }
 
   void _explainWithAlly(BuildContext context) {
     showModalBottomSheet(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(10),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
       isScrollControlled: true,
       context: context,
       builder: (content) {
@@ -506,15 +528,15 @@ class _ChapterSectionState extends State<ChapterSection> {
 
   Widget _buildActionButton(BuildContext context) {
     final activity = widget.section.activity;
-    var btnText = "Next";
+    var btnText = AppLocalizations.of(context)!.next;
     var btnAction = widget.onNext;
 
     if (activity != null && activity.type == SectionActivityTypes.quizz) {
-      btnText = "Quizz";
+      btnText = AppLocalizations.of(context)!.quiz;
       btnAction = onStartQuizz;
     } else if (activity != null &&
         activity.type == SectionActivityTypes.summary) {
-      btnText = "Activity";
+      btnText = AppLocalizations.of(context)!.activity;
       btnAction = onStartSummary;
     }
 

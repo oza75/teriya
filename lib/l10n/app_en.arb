@@ -148,5 +148,61 @@
   "course_document_deletion_confirm_btn": "Delete",
   "course_document_deleted_feedback": "Document removed !",
   "course_document_active": "Active",
-  "course_document_processing": "Processing..."
+  "course_document_processing": "Processing...",
+  "quiz": "Quiz",
+  "next": "Next",
+  "retry": "Retry",
+  "activity": "Activity",
+  "course_chapter_nb_sections": "{count, plural, =1{1 section} other{{count} sections}}",
+  "@course_chapter_nb_sections": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_chapter_nb_documents": "{count, plural, =1{1 document} other{{count} documents}}",
+  "@course_chapter_nb_documents": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "quiz_title": "Question {current}/{total}",
+  "@quiz_title": {
+    "placeholders": {
+      "current": {
+        "type": "num",
+        "format": "compact"
+      },
+      "total": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "quiz_next_question": "Next question",
+  "quiz_answer_correct": "Correct",
+  "quiz_answer_incorrect": "Incorrect",
+  "quiz_answer_explanation_title": "Explanation",
+  "summarization_photo_failed_feedback": "Failed to load picture.",
+  "summarization_activity_title": "Summarize Activity",
+  "summarization_summary_title": "Summarize",
+  "summarization_summary_explanation": "Take a moment to write down a summary of '{title}' using pen and paper. Once you're done, snap a picture and let Ally review your work.",
+  "@summarization_summary_explanation": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "summarization_take_picture_btn": "Take Picture",
+  "summarization_choose_picture_btn": "Choose Picture",
+  "summarization_validating": "Validating...",
+  "summarization_validation_failed_feedback": "Error while validating !",
+  "summarization_good_summary_title": "Well Done!",
+  "summarization_bad_summary_title": "Try Again!"
 }

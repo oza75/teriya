@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../components/feedback.dart';
 import '../../models.dart';
@@ -39,7 +40,10 @@ class _QuizzState extends State<Quizz> {
     return PlatformScaffold(
       appBar: PlatformAppBar(
         title: Text(
-          'Question ${_currentQuestionIndex + 1}/${widget.questions.length}',
+          AppLocalizations.of(context)!.quiz_title(
+            _currentQuestionIndex + 1,
+            widget.questions.length,
+          ),
         ),
       ),
       body: SafeArea(
@@ -115,10 +119,6 @@ class _QuizzState extends State<Quizz> {
   }
 
   void onSelectAnswer(SectionActivityQuizzQuestion question, String answer) {
-    // if (_answered) {
-    //   return;
-    // }
-
     setState(() {
       _selectedAnswer = answer;
       _answered = true;
@@ -129,11 +129,11 @@ class _QuizzState extends State<Quizz> {
         context: context,
         builder: (context) {
           final passed = _selectedAnswer == question.solution;
-          var actionText = "Next Question";
+          var actionText = AppLocalizations.of(context)!.quiz_next_question;
           var onPressed = onMoveToNextQuestion;
 
           if (_currentQuestionIndex == widget.questions.length - 1) {
-            actionText = "Next";
+            actionText = AppLocalizations.of(context)!.next;
             onPressed = widget.onFinish;
           }
 
@@ -154,7 +154,10 @@ class _QuizzState extends State<Quizz> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        passed ? "Correct" : "Incorrect",
+                        passed
+                            ? AppLocalizations.of(context)!.quiz_answer_correct
+                            : AppLocalizations.of(context)!
+                                .quiz_answer_incorrect,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 19,
@@ -164,9 +167,9 @@ class _QuizzState extends State<Quizz> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Explanation:',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.quiz_answer_explanation_title,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       fontSize: 18,
@@ -252,7 +255,13 @@ class _SummaryActivityState extends State<SummaryActivity> {
       setState(() {
         _validating = false;
       });
-      showSnackbar(context, const Text("Error while validating..."));
+      showSnackbar(
+        context,
+        Text(
+          AppLocalizations.of(context)!
+              .summarization_validation_failed_feedback,
+        ),
+      );
     });
   }
 
@@ -270,7 +279,7 @@ class _SummaryActivityState extends State<SummaryActivity> {
       final XFile? photo = await picker.pickImage(source: ImageSource.camera);
 
       if (photo != null) {
-       File file = File(photo.path); // Convert XFile to a File
+        File file = File(photo.path); // Convert XFile to a File
         _validateSummary(file);
       } else {
         print('No photo captured.');
@@ -295,7 +304,12 @@ class _SummaryActivityState extends State<SummaryActivity> {
         _validateSummary(file);
       }
     } catch (e) {
-      showSnackbar(context, const Text("Failed to load picture."));
+      showSnackbar(
+        context,
+        Text(
+          AppLocalizations.of(context)!.summarization_photo_failed_feedback,
+        ),
+      );
     }
   }
 
@@ -303,13 +317,7 @@ class _SummaryActivityState extends State<SummaryActivity> {
   Widget build(BuildContext context) {
     return PlatformScaffold(
       appBar: PlatformAppBar(
-        title: const Text("Summarize Activity"),
-        trailingActions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
+        title: Text(AppLocalizations.of(context)!.summarization_activity_title),
       ),
       body: SafeArea(
         child: _result == null
@@ -332,16 +340,17 @@ class _SummaryActivityState extends State<SummaryActivity> {
             height: 250,
           ),
           const SizedBox(height: 10),
-          const Text(
-            "Summarize",
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.summarization_summary_title,
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            "Take a moment to write down a summary of '${widget.section.title}' using pen and paper. Once you're done, snap a picture and let Ally review your work.",
+            AppLocalizations.of(context)!
+                .summarization_summary_explanation(widget.section.title),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.grey[500],
@@ -351,29 +360,38 @@ class _SummaryActivityState extends State<SummaryActivity> {
           ),
           const SizedBox(height: 20),
           if (!_validating)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Wrap(
+              alignment: WrapAlignment.center,
               children: [
                 CupertinoButton(
                   onPressed: _handleTakePicture,
-                  child: const Row(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.camera_alt, color: CupertinoColors.activeBlue),
-                      SizedBox(width: 4),
-                      Text("Take Picture"),
+                      const Icon(Icons.camera_alt,
+                          color: CupertinoColors.activeBlue),
+                      const SizedBox(width: 4),
+                      Text(
+                        AppLocalizations.of(context)!
+                            .summarization_take_picture_btn,
+                      ),
                     ],
                   ),
                 ),
                 CupertinoButton(
                   onPressed: _handleChoosePicture,
-                  child: const Row(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.photo_library,
                         color: CupertinoColors.activeBlue,
                       ),
-                      SizedBox(width: 4),
-                      Text("Choose Picture"),
+                      const SizedBox(width: 4),
+                      Text(
+                        AppLocalizations.of(context)!
+                            .summarization_choose_picture_btn,
+                      ),
                     ],
                   ),
                 ),
@@ -383,9 +401,9 @@ class _SummaryActivityState extends State<SummaryActivity> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  "Validating...",
-                  style: TextStyle(color: CupertinoColors.activeBlue),
+                Text(
+                  AppLocalizations.of(context)!.summarization_validating,
+                  style: const TextStyle(color: CupertinoColors.activeBlue),
                 ),
                 PlatformCircularProgressIndicator()
               ],
@@ -397,10 +415,10 @@ class _SummaryActivityState extends State<SummaryActivity> {
 
   Widget _buildValidationView(BuildContext context) {
     final success = _result!.score >= 80;
-    var btnText = "Next";
+    var btnText = AppLocalizations.of(context)!.next;
     var btnAction = widget.onFinish;
     if (!success) {
-      btnText = "Retry";
+      btnText = AppLocalizations.of(context)!.retry;
       btnAction = _onRetry;
     }
     return SingleChildScrollView(
@@ -447,7 +465,9 @@ class _SummaryActivityState extends State<SummaryActivity> {
             ),
           ),
           Text(
-            success ? "Well Done!" : "Try Again!",
+            success
+                ? AppLocalizations.of(context)!.summarization_good_summary_title
+                : AppLocalizations.of(context)!.summarization_bad_summary_title,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: success ? Colors.green : Colors.red,

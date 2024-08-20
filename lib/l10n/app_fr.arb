@@ -148,5 +148,61 @@
   "course_document_deletion_confirm_btn": "Supprimer",
   "course_document_deleted_feedback": "Document supprimé !",
   "course_document_active": "Actif",
-  "course_document_processing": "Traitement en cours..."
+  "course_document_processing": "Traitement en cours...",
+  "quiz": "Quiz",
+  "next": "Suivant",
+  "retry": "Réessayer",
+  "activity": "Activité",
+  "course_chapter_nb_sections": "{count, plural, =1{1 section} other{{count} sections}}",
+  "@course_chapter_nb_sections": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "course_chapter_nb_documents": "{count, plural, =1{1 document} other{{count} documents}}",
+  "@course_chapter_nb_documents": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "quiz_title": "Question {current}/{total}",
+  "@quiz_title": {
+    "placeholders": {
+      "current": {
+        "type": "num",
+        "format": "compact"
+      },
+      "total": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "quiz_next_question": "Question suivante",
+  "quiz_answer_correct": "Bonne réponse",
+  "quiz_answer_incorrect": "Mauvaise réponse",
+  "quiz_answer_explanation_title": "Explication",
+  "summarization_photo_failed_feedback": "Échec du chargement de l'image.",
+  "summarization_activity_title": "Activité de Résumé",
+  "summarization_summary_title": "Résumé",
+  "summarization_summary_explanation": "Prenez un moment pour écrire un résumé de '{title}' avec un stylo et du papier. Une fois terminé, prenez une photo et laissez Ally examiner votre travail.",
+  "@summarization_summary_explanation": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "summarization_take_picture_btn": "Prendre une photo",
+  "summarization_choose_picture_btn": "Choisir une photo",
+  "summarization_validating": "Validation en cours...",
+  "summarization_validation_failed_feedback": "Erreur lors de la validation !",
+  "summarization_good_summary_title": "Bien joué !",
+  "summarization_bad_summary_title": "Réessayez !"
 }
