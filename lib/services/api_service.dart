@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../constants.dart';
 
@@ -52,11 +53,17 @@ class ApiService {
         }
         return handler.next(response);
       },
-      onError: (error, handler) {
+      onError: (error, handler) async {
         // Delete token from storage and cache on authentication error
         if (error.response?.statusCode == 401) {
           removeToken();
+        } else {
+          await Sentry.captureException(
+            error,
+            stackTrace: error.stackTrace,
+          );
         }
+
         return handler.next(error);
       },
     ));
